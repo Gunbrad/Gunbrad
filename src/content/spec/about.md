@@ -1,9 +1,17 @@
-# About
-This is the demo site for [Fuwari](https://github.com/saicaca/fuwari).
+# 关于
+
+这是基于  [Fuwari](https://github.com/saicaca/fuwari)  框架的静态前端项目，众多博客框架里还是Fuwari香
+
+本科在校生，仍在不断学习成长中
 
 ::github{repo="saicaca/fuwari"}
 
-> ### Sources of images used in this site
-> - [Unsplash](https://unsplash.com/)
-> - [星と少女](https://www.pixiv.net/artworks/108916539) by [Stella](https://www.pixiv.net/users/93273965)
-> - [Rabbit - v1.4 Showcase](https://civitai.com/posts/586908) by [Rabbit_YourMajesty](https://civitai.com/user/Rabbit_YourMajesty)
+<br>
+
+<br>
+
+# 友情链接
+
+- 教会我做博客的学长：[二叉树树的博客](https://afo.im/)
+
+- 在规划上帮过我的学长：[千千的博客](https://sal-qianqian.icu/)

@@ -4,8 +4,62 @@ import { profileConfig } from "../../config";
 import { url } from "../../utils/url-utils";
 import ImageWrapper from "../misc/ImageWrapper.astro";
 
+// 不需要导入图片，直接使用public目录下的图片
 const config = profileConfig;
+
+// 添加CSS样式来实现二维码的悬停显示
 ---
+
+<style>
+    /* 悬停显示二维码的样式 */
+    .card-base {
+        /* 确保不会裁剪溢出内容 */
+        overflow: visible !important;
+    }
+    
+    .qrcode-container {
+        position: relative;
+        cursor: pointer;
+    }
+    
+    .qrcode {
+        position: absolute;
+        bottom: -140px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 120px;
+        height: 120px;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+        z-index: 200; /* 使用更高的z-index确保在最上层 */
+        border-radius: 6px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        background-color: white;
+        padding: 5px;
+        pointer-events: none; /* 防止鼠标事件干扰悬停状态 */
+    }
+    
+    /* 二维码背景箭头 */
+    .qrcode::before {
+        content: '';
+        position: absolute;
+        top: -8px;
+        left: 50%;
+        transform: translateX(-50%) rotate(45deg);
+        width: 16px;
+        height: 16px;
+        background-color: white;
+        z-index: -1;
+    }
+    
+    /* 悬停状态 */
+    .qrcode-container:hover .qrcode {
+        opacity: 1;
+        visibility: visible;
+    }
+</style>
+
 <div class="card-base p-3">
     <a aria-label="Go to About Page" href={url('/about/')}
        class="group block relative mx-auto mt-1 lg:mx-0 lg:mt-0 mb-3
@@ -23,11 +77,20 @@ const config = profileConfig;
         <div class="h-1 w-5 bg-[var(--primary)] mx-auto rounded-full mb-2 transition"></div>
         <div class="text-center text-neutral-400 mb-2.5 transition">{config.bio}</div>
         <div class="flex gap-2 justify-center mb-1">
-            {config.links.length > 1 && config.links.map(item =>
+            {config.links.length > 1 && config.links.map(item => (
+                item.name === 'Wechat' ? (
+                    <div class="qrcode-container btn-regular rounded-lg h-10 w-10 flex items-center justify-center">
+                        <Icon name={item.icon} class="text-[1.5rem]"></Icon>
+                        <div class="qrcode">
+                            <img src="/qrcode.png" alt="WeChat QR Code" class="w-full h-full rounded-md" />
+                        </div>
+                    </div>
+                ) : (
                     <a rel="me" aria-label={item.name} href={item.url} target="_blank" class="btn-regular rounded-lg h-10 w-10 active:scale-90">
                         <Icon name={item.icon} class="text-[1.5rem]"></Icon>
                     </a>
-            )}
+                )
+            ))}
             {config.links.length == 1 && <a rel="me" aria-label={config.links[0].name} href={config.links[0].url} target="_blank"
                                             class="btn-regular rounded-lg h-10 gap-2 px-3 font-bold active:scale-95">
                 <Icon name={config.links[0].icon} class="text-[1.5rem]"></Icon>

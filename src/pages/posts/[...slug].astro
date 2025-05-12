@@ -8,11 +8,12 @@ import MainGridLayout from "@layouts/MainGridLayout.astro";
 import { getSortedPosts } from "@utils/content-utils";
 import { getDir, getPostUrlBySlug } from "@utils/url-utils";
 import { Icon } from "astro-icon/components";
-import { licenseConfig } from "src/config";
+import { licenseConfig, commentConfig } from "src/config";
 import PostMetadata from "../../components/PostMeta.astro";
 import ImageWrapper from "../../components/misc/ImageWrapper.astro";
 import { profileConfig, siteConfig } from "../../config";
 import { formatDateToYYYYMMDD } from "../../utils/date-utils";
+import TwikooComment from "../../components/TwikooComment.astro";
 
 export async function getStaticPaths() {
 	const blogEntries = await getSortedPosts();
@@ -130,5 +131,10 @@ const jsonLd = {
             </div>}
         </a>
     </div>
+
+    <!-- 添加评论组件 -->
+    {commentConfig.enable && commentConfig.system === 'twikoo' && 
+        <TwikooComment path={entry.slug} />
+    }
 
 </MainGridLayout>

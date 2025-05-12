@@ -16,7 +16,7 @@
 - [x] 亮色 / 暗色模式
 - [x] 自定义主题色和横幅图片
 - [x] 响应式设计
-- [ ] 评论
+- [x] 评论（Twikoo）
 - [x] 搜索
 - [ ] 文内目录
 
@@ -42,6 +42,30 @@ category: Front-end
 draft: false
 lang: jp      # 仅当文章语言与 `config.ts` 中的网站语言不同时需要设置
 ---
+```
+
+## 💬 配置Twikoo评论系统
+
+1. 注册并登录 [MongoDB Atlas](https://www.mongodb.com/cloud/atlas/register)
+2. 创建免费的共享数据库 (M0)
+3. 在"Security" > "Database Access"中创建数据库用户
+4. 在"Security" > "Network Access"中，添加 `0.0.0.0/0` 到允许列表（或者限制为你的Vercel服务器IP）
+5. 获取MongoDB连接字符串：在"Database"页面点击"Connect"，选择"Connect your application"，复制连接字符串
+6. 将连接字符串中的`<password>`替换为你设置的密码
+7. 前往[Vercel](https://vercel.com)创建新项目
+8. 在项目设置的"Environment Variables"中，添加变量`MONGODB_URI`，值为MongoDB连接字符串
+9. Fork [Twikoo云函数仓库](https://github.com/imaegoo/twikoo)
+10. 在Vercel中导入该仓库，然后部署
+11. 部署完成后，访问`https://你的域名.vercel.app/`，检查是否显示Twikoo运行正常的提示
+12. 在博客配置文件`src/config.ts`中修改`commentConfig`：
+```js
+export const commentConfig: CommentConfig = {
+  enable: true,
+  system: 'twikoo',
+  twikoo: {
+    envId: 'https://你的域名.vercel.app/',
+  }
+};
 ```
 
 ## 🧞 指令

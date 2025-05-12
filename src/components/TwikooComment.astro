@@ -1,0 +1,252 @@
+---
+import { siteConfig, commentConfig } from "../config";
+
+// 获取文章的唯一标识，用于评论系统
+const { path } = Astro.props;
+
+// 从配置中获取Twikoo配置
+const twikooEnvId = commentConfig.twikoo.envId;
+---
+
+<div id="twikoo-container" class="card-base z-10 px-6 md:px-9 py-6 relative w-full rounded-[var(--radius-large)] mb-4 onload-animation">
+    <div id="tcomment"></div>
+</div>
+
+<!-- 添加CSS隐藏网址字段 -->
+<style is:global>
+    /* 隐藏网址输入框 */
+    .tk-input[name="link"],
+    .tk-input[name="link"] + label {
+        display: none !important;
+    }
+</style>
+
+<!-- 加载最新版本的 Twikoo -->
+<script is:inline src="https://cdn.jsdelivr.net/npm/twikoo@latest/dist/twikoo.all.min.js"></script>
+
+<!-- 初始化Twikoo的函数 - 使用立即执行函数表达式(IIFE)避免变量泄露到全局作用域 -->
+<script is:inline>
+(function() {
+    // 避免重复声明变量，使用window对象存储
+    if (!window.TwikooConfig) {
+        window.TwikooConfig = {
+            // QQ头像相关URL
+            QQ_AVATAR_URLS: [
+                'q1.qlogo.cn', 'q2.qlogo.cn', 'q3.qlogo.cn', 'q4.qlogo.cn', 
+                'thirdqq.qlogo.cn'
+            ],
+            envId: 'https://twikoo-api-xi.vercel.app/'
+        };
+    }
+    
+    // 如果twikooInit已经存在，不再重新定义
+    if (!window.twikooInit) {
+        window.twikooInit = function() {
+            if (typeof twikoo !== 'undefined' && document.querySelector('#tcomment')) {
+                // 确保容器为空
+                const commentContainer = document.querySelector('#tcomment');
+                if (commentContainer) {
+                    commentContainer.innerHTML = '';
+                }
+                
+                twikoo.init({
+                    envId: window.TwikooConfig.envId,
+                    el: '#tcomment',
+                    placeholder: '填写QQ邮箱评论时会自动使用QQ头像哦~',
+                    // 必需字段和QQ支持
+                    requiredFields: ['nick', 'mail'],
+                    enableQQ: true,
+                    // 确保正确的页面路径
+                    path: location.pathname,
+                    // Gravatar设置
+                    avatar: 'qq',
+                    avatarCDN: 'https://cravatar.cn/avatar/',
+                    avatarForce: true
+                });
+                console.log("Twikoo初始化完成，页面路径:", location.pathname);
+                
+                // 添加手动修复头像的函数
+                if (!window.fixTwikooAvatars) {
+                    window.fixTwikooAvatars = function() {
+                        setTimeout(() => {
+                            const avatars = document.querySelectorAll('.tk-avatar');
+                            avatars.forEach(avatar => {
+                                // 检查是否为默认头像
+                                const imgSrc = avatar.getAttribute('src');
+                                if (imgSrc && !window.TwikooConfig.QQ_AVATAR_URLS.some(url => imgSrc.includes(url))) {
+                                    // 尝试从数据属性中获取邮箱并构建QQ头像URL
+                                    const parentComment = avatar.closest('.tk-comment');
+                                    if (parentComment) {
+                                        const mailMd5 = parentComment.getAttribute('data-mail-md5');
+                                        if (mailMd5 && mailMd5.includes('@qq.com')) {
+                                            const qqNumber = mailMd5.split('@')[0];
+                                            if (/^\d+$/.test(qqNumber)) {
+                                                avatar.setAttribute('src', `https://q1.qlogo.cn/g?b=qq&nk=${qqNumber}&s=100`);
+                                            }
+                                        }
+                                    }
+                                }
+                            });
+                        }, 1000);
+                    };
+                }
+            } else {
+                console.error("初始化Twikoo失败：twikoo未定义或容器不存在");
+            }
+        };
+    }
+
+    // 标记当前页面路径，用于检测页面是否变化
+    window.currentPath = location.pathname;
+    
+    // 页面加载完成后初始化
+    if (!window.twikooLoadListener) {
+        window.twikooLoadListener = true;
+        window.addEventListener('load', () => {
+            window.twikooInit();
+            // 延迟执行头像修复，确保评论已加载
+            setTimeout(() => {
+                if (window.fixTwikooAvatars) {
+                    window.fixTwikooAvatars();
+                }
+            }, 3000);
+        });
+    }
+
+    // 确保Twikoo已加载
+    if (typeof twikoo === 'undefined') {
+        console.log("Twikoo未加载，等待加载完成...");
+        if (!window.twikooCheckInterval) {
+            let checkCount = 0;
+            window.twikooCheckInterval = setInterval(() => {
+                checkCount++;
+                if (typeof twikoo !== 'undefined') {
+                    clearInterval(window.twikooCheckInterval);
+                    delete window.twikooCheckInterval;
+                    console.log("Twikoo已加载，开始初始化");
+                    window.twikooInit();
+                } else if (checkCount > 10) {
+                    clearInterval(window.twikooCheckInterval);
+                    delete window.twikooCheckInterval;
+                    console.error("Twikoo加载超时");
+                }
+            }, 500);
+        }
+    } else if (document.querySelector('#tcomment')) {
+        // 如果twikoo已加载且评论容器存在，直接初始化
+        window.twikooInit();
+    }
+})();
+</script>
+
+<!-- 处理页面切换 -->
+<script>
+(function() {
+    // 防止多次添加事件监听
+    if (window.twikooSwupListenersSet) return;
+    window.twikooSwupListenersSet = true;
+    
+    function setupSwupListeners() {
+        if (window.swup) {
+            // 监听页面视图改变事件
+            window.swup.hooks.on('page:view', () => {
+                console.log("页面视图改变，当前路径:", location.pathname);
+                
+                // 检查路径是否变化，确保在新页面上重新初始化
+                if (window.currentPath !== location.pathname) {
+                    window.currentPath = location.pathname;
+                    
+                    // 给DOM一些时间更新
+                    setTimeout(() => {
+                        if (document.querySelector('#tcomment')) {
+                            console.log("找到评论容器，重新初始化Twikoo");
+                            if (typeof twikoo !== 'undefined') {
+                                // 重置容器内容
+                                document.querySelector('#tcomment').innerHTML = '';
+                                
+                                // 强制销毁旧实例并重新初始化
+                                if (typeof twikoo.destroy === 'function') {
+                                    try {
+                                        twikoo.destroy();
+                                    } catch (error) {
+                                        console.log("Twikoo实例不存在或销毁失败:", error);
+                                    }
+                                }
+                                
+                                // 重新初始化
+                                twikoo.init({
+                                    envId: window.TwikooConfig ? window.TwikooConfig.envId : 'https://twikoo-api-xi.vercel.app/',
+                                    el: '#tcomment',
+                                    placeholder: '填写QQ邮箱评论时会自动使用QQ头像哦~',
+                                    requiredFields: ['nick', 'mail'],
+                                    enableQQ: true,
+                                    path: location.pathname,
+                                    avatar: 'qq',
+                                    avatarCDN: 'https://cravatar.cn/avatar/',
+                                    avatarForce: true
+                                });
+                                
+                                console.log("Twikoo重新初始化完成，页面路径:", location.pathname);
+                                
+                                // 延迟修复头像
+                                setTimeout(() => {
+                                    if (window.fixTwikooAvatars) {
+                                        window.fixTwikooAvatars();
+                                    }
+                                }, 3000);
+                            } else {
+                                console.error("Twikoo未定义，无法初始化");
+                                // 尝试重新加载Twikoo脚本
+                                const existingScript = document.querySelector('script[src*="twikoo"]');
+                                if (existingScript) {
+                                    existingScript.remove();
+                                }
+                                const newScript = document.createElement('script');
+                                newScript.src = "https://cdn.jsdelivr.net/npm/twikoo@latest/dist/twikoo.all.min.js";
+                                newScript.onload = () => {
+                                    console.log("Twikoo脚本已重新加载");
+                                    if (typeof twikoo !== 'undefined' && window.twikooInit) {
+                                        window.twikooInit();
+                                    }
+                                };
+                                document.head.appendChild(newScript);
+                            }
+                        } else {
+                            console.log("未找到评论容器");
+                        }
+                    }, 300);
+                } else {
+                    console.log("页面路径未变化，不重新初始化Twikoo");
+                }
+            });
+
+            // 内容替换前清空旧容器
+            window.swup.hooks.on('content:replace', () => {
+                console.log("内容替换，清理旧容器");
+                const oldContainer = document.querySelector('#tcomment');
+                if (oldContainer) {
+                    oldContainer.innerHTML = '';
+                }
+            }, { before: true });
+            
+            // 监听链接点击事件，准备清理旧实例
+            window.swup.hooks.on('link:click', () => {
+                console.log("链接点击，准备清理Twikoo实例");
+                if (typeof twikoo !== 'undefined' && typeof twikoo.destroy === 'function') {
+                    try {
+                        // 尝试销毁旧实例
+                        twikoo.destroy();
+                    } catch (error) {
+                        console.log("Twikoo实例销毁失败:", error);
+                    }
+                }
+            });
+        } else {
+            console.log("Swup未初始化，等待Swup初始化");
+            document.addEventListener('swup:enable', setupSwupListeners, { once: true });
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', setupSwupListeners, { once: true });
+})();
+</script> 
