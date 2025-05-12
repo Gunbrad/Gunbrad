@@ -9,615 +9,354 @@ draft: false
 lang: ''
 ---
 
-# 从零开始搭建个人博客完整指南
+# 我是如何基于Fuwari框架搭建个人博客的
 
-本指南将详细介绍如何使用Fuwari项目搭建个人博客，并通过GitHub Pages托管和Cloudflare代理加速，使其在国内能够稳定访问。
+记录一下我是如何搭建我的个人博客的
+
+![](assets/2025-05-12-21-43-17-image.png)
 
 ## 目录
 
-- [准备工作](#%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C)
-- [下载并配置Fuwari项目](#%E4%B8%8B%E8%BD%BD%E5%B9%B6%E9%85%8D%E7%BD%AEfuwari%E9%A1%B9%E7%9B%AE)
-- [创建并发布内容](#%E5%88%9B%E5%BB%BA%E5%B9%B6%E5%8F%91%E5%B8%83%E5%86%85%E5%AE%B9)
-- [部署到GitHub Pages](#%E9%83%A8%E7%BD%B2%E5%88%B0github-pages)
-- [使用Cloudflare代理加速](#%E4%BD%BF%E7%94%A8cloudflare%E4%BB%A3%E7%90%86%E5%8A%A0%E9%80%9F)
-- [网站备案指南](#%E7%BD%91%E7%AB%99%E5%A4%87%E6%A1%88%E6%8C%87%E5%8D%97)
-- [维护与更新](#%E7%BB%B4%E6%8A%A4%E4%B8%8E%E6%9B%B4%E6%96%B0)
-- [常见问题解答](#%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98%E8%A7%A3%E7%AD%94)
+- [前置准备](#前置准备)
+- [第一部分：获取并配置Fuwari框架](#第一部分获取并配置fuwari框架)
+- [第二部分：本地开发与内容创建](#第二部分本地开发与内容创建)
+- [第三部分：部署到GitHub](#第三部分部署到github)
+- [第四部分：配置Cloudflare Pages](#第四部分配置cloudflare-pages)
+- [第五部分：设置自定义域名](#第五部分设置自定义域名)
+- [第六部分：配置Twikoo评论系统](#第六部分配置twikoo评论系统)
+- [常见问题与解决方案](#常见问题与解决方案)
 
-## 准备工作
+## 前置准备
 
-### 1. 安装必要工具
+开始搭建博客前，需要做好如下准备，安装将不再赘述：
 
-1. **安装Git**
+1. **开发环境**：
    
-   - 访问 [Git官网](https://git-scm.com/)下载并安装
+   - [Node.js](https://nodejs.org/) 18.x 或更高版本
+   - [Git](https://git-scm.com/)
+   - 一个代码编辑器，如 [Visual Studio Code](https://code.visualstudio.com/)
+
+2. **账号**：
    
-   - 安装后打开终端或命令提示符，验证安装：
-     
-     ```bash
-     git --version
-     ```
+   - [GitHub](https://github.com/) 账号（用于代码托管）
+   - [Cloudflare](https://www.cloudflare.com/) 账号（用于网站托管和域名管理）
 
-2. **安装Node.js**
+3. **可选**：
    
-   - 访问 [Node.js官网](https://nodejs.org/)下载并安装LTS版本
-   
-   - 验证安装：
-     
-     ```bash
-     node --version
-     npm --version
-     ```
+   - 自己的域名（如果使用自定义域名）
+   - [MongoDB Atlas](https://www.mongodb.com/cloud/atlas) 账号（如果使用Twikoo评论系统）
 
-3. **安装pnpm**
-   
-   - 在终端或命令提示符中执行（以管理员模式运行）：
-     
-     ```bash
-     npm install -g pnpm
-     ```
-   
-   - 验证安装：
-     
-     ```bash
-     pnpm --version
-     ```
+## 一：获取Fuwari框架并完成配置
 
-4. **注册GitHub账号**
-   
-   - 访问 [GitHub](https://github.com/)注册账号（如果还没有）
+### 1.1 获取Fuwari框架
 
-### 2. 准备域名（可选）
-
-- 如果你想使用自定义域名而不是默认的`<用户名>.github.io`，需要购买一个域名
-- 推荐的域名注册商：[Namecheap](https://www.namecheap.com/)、[GoDaddy](https://www.godaddy.com/)、[阿里云](https://wanwang.aliyun.com/)等
-
-## 下载并配置Fuwari项目
-
-### 1. 使用模板创建仓库
+**Fork仓库**
 
 1. 访问 [Fuwari GitHub仓库](https://github.com/saicaca/fuwari)
-2. 点击右上角的 "Use this template" 按钮，选择 "Create a new repository"
-3. 填写仓库信息：
-   - Repository name: 建议使用 `<用户名>.github.io`（这样可以直接作为GitHub Pages的默认网址）
-   - 选择 "Public"（GitHub Pages需要公开仓库，除非你是付费用户）
-4. 点击 "Create repository from template"
 
-### 2. 克隆仓库到本地
-
-1. 在你的新仓库页面，点击 "Code" 按钮
-
-2. 复制HTTPS或SSH地址
-
-3. 打开终端或命令提示符，切换到你想保存项目的目录
-
-4. 执行克隆命令：
+2. 点击右上角的"Fork"按钮
    
-   ```bash
-   git clone https://github.com/你的用户名/你的仓库名.git
-   ```
+   ![](assets/2025-05-12-21-46-54-image.png)
 
-5. 进入项目目录：
+3. 设置仓库名称，然后点击"Create fork"
    
-   ```bash
-   cd 你的仓库名
-   ```
+   ![](assets/2025-05-12-22-16-33-image.png)
 
-### 3. 安装依赖
+### 1.2 将仓库克隆到本地
 
-在项目目录下执行：
+1. 新建文件夹，在标识处输入cmd
+   
+   ![](assets/2025-05-12-22-20-02-image.png)
 
-```bash
-pnpm install
-pnpm add sharp
-```
+2. 打开终端（命令行），执行以下命令：
 
-这将安装所有必要的依赖，包括图片处理库sharp。
+`git clone https://github.com/YOUR_USERNAME/REPO_NAME.git`
 
-### 4. 配置博客信息
+替换 YOUR_USERNAME 为您的GitHub用户名，REPO_NAME 为仓库名称
 
-1. 打开 `src/config.ts` 文件
-2. 该文件现在包含四个主要的配置部分：站点配置、导航栏配置、个人资料配置和许可证配置。
+### 1.3 安装依赖
 
-#### 站点基本配置 (siteConfig)
+1. 在项目根目录安装pnpm：`npm install -g pnpm`
+
+2. 然后安装项目依赖：`pnpm install`和`pnpm add sharp`
+
+### 1.4 基础配置修改
+
+打开`src/config.ts`文件，这个文件博客相关的配置：
+
+网站配置：
 
 ```typescript
 export const siteConfig: SiteConfig = {
-  title: "你的博客标题",        // 博客主标题
-  subtitle: "你的博客副标题",   // 博客副标题
-  lang: "zh_CN",              // 语言设置：'en', 'zh_CN', 'zh_TW', 'ja', 'ko', 'es', 'th'
-  themeColor: {
-    hue: 250,                 // 主题色调值(0-360)，如红色:0, 青色:200, 蓝色:250, 粉色:345
-    fixed: false,             // 设为true则访客无法修改主题颜色
-  },
-  banner: {
-    enable: true,             // 是否启用横幅图片
-    src: "assets/images/banner.jpg", // 横幅图片路径，相对于/src目录，如以'/'开头则相对于/public目录
-    position: "center",       // 图片位置，支持'top'、'center'、'bottom'
-    credit: {
-      enable: false,          // 是否显示图片来源信息
-      text: "",               // 来源文本
-      url: "",                // 来源链接
-    },
-  },
-  toc: {
-    enable: true,             // 是否在文章右侧显示目录
-    depth: 2,                 // 目录最大深度(1-3)
-  },
-  favicon: [],                // 网站图标配置，留空使用默认图标
+	title: "Gunbrad Blog", // 博客名称
+	subtitle: "",
+	lang: "zh_CN", // 博客语言，选择zh_CN即为中文
+	themeColor: {
+		hue: 280, // 博客的颜色主题
+		fixed: true, // 设为true游客不能自主调整博客颜色主题
+	},
+	banner: {
+		enable: false, // 是否开启banner图
+		src: "assets/images/banner5.jpg", // banner的路径，放在assets/images目录下
+		position: "bottom", // Equivalent to object-position, only supports 'top', 'center', 'bottom'. 'center' by default
+		credit: {
+			enable: false, // Display the credit text of the banner image
+			text: "", // Credit text to be displayed
+			url: "", // (Optional) URL link to the original artwork or artist's page
+		},
+	},
+	toc: {
+		enable: true, // Display the table of contents on the right side of the post
+		depth: 2, // Maximum heading depth to show in the table, from 1 to 3
+	},
+	favicon: [
+		// Leave this array empty to use the default favicon
+		// {
+		//   src: '/favicon/icon.png',    // Path of the favicon, relative to the /public directory
+		//   theme: 'light',              // (Optional) Either 'light' or 'dark', set only if you have different favicons for light and dark mode
+		//   sizes: '32x32',              // (Optional) Size of the favicon, set only if you have favicons of different sizes
+		// }
+	],
 };
 ```
 
-#### 导航栏配置 (navBarConfig)
-
-```typescript
-export const navBarConfig: NavBarConfig = {
-  links: [
-    LinkPreset.Home,          // 首页链接(预设)
-    LinkPreset.Archive,       // 归档链接(预设)
-    LinkPreset.About,         // 关于页面链接(预设)
-    {
-      name: "GitHub",         // 自定义链接名称
-      url: "https://github.com/你的用户名", // 链接URL，内部链接不要包含基础路径
-      external: true,         // true表示外部链接，将在新标签页打开并显示外部链接图标
-    },
-    // 可添加更多自定义链接
-  ],
-};
-```
-
-#### 个人资料配置 (profileConfig)
+个人资料配置：
 
 ```typescript
 export const profileConfig: ProfileConfig = {
-  avatar: "assets/images/avatar.jpg", // 头像路径，相对于/src目录，如以'/'开头则相对于/public目录
-  name: "你的名字",            // 显示的名字
-  bio: "关于你的简介",         // 个人简介
+  avatar: "assets/images/avatar.jpg", // 头像路径，建议放在src/assets/images目录下
+  name: "你的名字", // 你的名字
+  bio: "个人简介", // 你的个人简介
   links: [
-    {
-      name: "Twitter",        // 社交媒体名称
-      icon: "fa6-brands:twitter", // 图标代码，可访问https://icones.js.org/查找
-      // 如需使用新的图标集，需安装对应的图标包：`pnpm add @iconify-json/<图标集名称>`
-      url: "https://twitter.com/你的用户名",
-    },
-    {
-      name: "GitHub",
-      icon: "fa6-brands:github",
-      url: "https://github.com/你的用户名",
-    },
-    // 可添加更多社交媒体链接
-  ],
+		{
+			name: "QQ",
+			icon: "fa6-brands:qq", // 在icons.js这个网站寻找对应的图标，fa6-brands系列的图标就足够了
+			url: "https://qm.qq.com/q/iejWCmdg2c", // 手机QQ的“我的二维码”界面的分享功能可以复制链接，粘贴在此处即可
+		},
+		 {
+			name: "Wechat",
+			icon: "fa6-brands:weixin", // 我在前端编写了代码，悬停时可显示出微信的二维码
+			url: "",
+		},
+		{
+			name: "GitHub",
+			icon: "fa6-brands:github",
+			url: "https://github.com/Gunbrad", // url表示目标链接，点击即跳转
+		},
+	],
+
 };
 ```
 
-#### 许可证配置 (licenseConfig)
+顶部导航栏配置：
 
 ```typescript
-export const licenseConfig: LicenseConfig = {
-  enable: true,               // 是否在文章底部显示许可证信息
-  name: "CC BY-NC-SA 4.0",    // 许可证名称
-  url: "https://creativecommons.org/licenses/by-nc-sa/4.0/", // 许可证链接
+export const navBarConfig: NavBarConfig = {
+	links: [
+		LinkPreset.Home,
+		LinkPreset.Archive,
+		LinkPreset.About,
+		{
+			name: "GitHub",
+			url: "https://github.com/saicaca/fuwari", 
+			external: true, 
+		},
+	],
 };
 ```
 
-3. 保存配置文件后可以运行`pnpm dev`查看效果
+## 二：文章编写
 
-### 5. 替换资源文件
+经过以上的步骤，你已经完成了博客的配置，现在开始编写文章吧
 
-1. 头像图片：
+### 2.1 启动开发服务器
+
+在项目根目录的cmd界面输入这个命令启动本地开发服务器：
+
+```bash
+pnpm dev
+```
+
+现在我们可以在浏览器中访问`http://localhost:4321`查看博客了。
+
+### 2.2 创建新文章
+
+在项目根目录的cmd界面使用内置命令创建新文章：
+
+```bash
+pnpm new-post 文章标题
+```
+
+这将在`src/content/posts/`目录下创建一个新的md文件，编写文章就是在这个md文件中进行的
+
+### 2.3 编辑文章
+
+打开新创建的md文件，会有如下的配置信息：
+
+```yaml
+---
+title: My First Blog Post // 文章标题
+published: 2025-05-12 // 文章创建时间
+description: This is the first post of my new Astro blog. // 文章描述，会显示在文章标题下面
+image: ./assets/images/cover.jpg // 文章封面，填写相对路径
+tags: [Foo, Bar] // 文章的标签
+category: Front-end  // 文章分类
+draft: false // 是否为草稿
+---
+```
+
+在配置信息下方就是我们编写博客内容的地方
+
+### 2.4 本地预览
+
+完成编写并保存md文件后，本地服务器会动态更新，我们可以在本地开发服务器中实时预览到刚编写的博客。
+
+### 2.5 md编辑器推荐
+
+- 教我做博客的大佬推荐了一款md编辑器——`MarkText`,使用该编辑器可以直接Ctrl+C/V完成图片的粘贴
+
+- 依次点击：MarkText软件的左上角的三条杠 -> File -> Perferences -> 左侧的Image分类 -> 如图设置 -> 注意更改第一个选项为Copy开头的选项，该选项允许我们置入图片时，会往选定的文件夹复制一份。
+
+- 将Perfer开关打开，然后上下两个文本框一个填写绝对路径一个填写相对路径。绝对路径和相对路径都填写我们博客中assets/images的目录
+  
+  ![](assets/images/2025-05-12-23-02-18-image.png)
+
+## 三：部署到GitHub
+
+我们已经完成了博客的编写，接下来就应该部署到github上了
+
+### 3.1 配置git信息
+
+1. 首先，在根目录的cmd界面运行以下配置指令：
+
+```bash
+git config --global user.name "你的Github用户名"
+git config --global user.email "你的Github邮箱@example.com"
+```
+
+该配置指令让git知道你是谁
+
+2. 然后在windows的终端配置SSH公钥
+
+```bash
+// 输入这串指令生成SSH公钥，填写自己的邮箱，之后一路回车即可
+ssh-keygen -t ed25519 -C "your_email@example.com"
+// 输入这串指令查看SSH公钥，~填写.ssh之前的路径，然后复制生成的密钥
+cat ~/.ssh/id_ed25519.pub
+```
+
+3. 接着在添加公钥到 GitHub
+- 登录 GitHub，点击右上角头像 → **Settings** → **SSH and GPG Keys**。
+
+- 点击 **New SSH Key**。
+
+- 填写：
+  
+  - **Title**: 自定义名称，随便填写。
+  
+  - **Key Type**: 保持默认 `Authentication Key`。
+  
+  - **Key**: 粘贴复制的公钥内容（以 `ssh-ed25519` 开头）。
+4. 现在我们配置好了SSH公钥，就需要在项目根目录下运行cmd，将远程仓库更改为ssh*
+
+```bash
+git remote set-url origin git@github.com:xxx/xxx // 替换为下图地址
+```
+
+![](assets/images/2025-05-12-23-13-11-image.png)
+
+5. 将更改推送到GitHub仓库：
+
+```bash
+git push origin main
+```
+
+## 四：配置Cloudflare Pages
+
+根据以上的步骤，我们已经将项目上传到了github上，现在就需要让Cloudflare连接上Github，使用Pages服务展示我们的博客了
+
+### 4.1 设置pnpm-lock.yaml与package.json同步
+
+我在构建时遇到了依赖问题，为了避免该问题，要确保`pnpm-lock.yaml`与`package.json`同步。在项目根目录创建或修改`.npmrc`文件：
+
+```
+manage-package-manager-versions = true
+frozen-lockfile = false
+```
+
+### 4.2 创建Cloudflare Pages配置文件
+
+在项目根目录创建以下文件，以配置Cloudflare Pages的构建和路由：
+
+**1. 创建`public/_redirects`文件**
+
+```
+# 这个文件是为了让Cloudflare Pages识别这是一个静态网站项目
+/* /index.html 200
+```
+
+**2. 创建`public/_headers`文件**
+
+```
+/*
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  X-XSS-Protection: 1; mode=block
+
+# 静态资源缓存
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+```
+
+**3. 创建`.cloudflare/pages-config.json`文件**
+
+```json
+{
+  "build": {
+    "command": "pnpm install --no-frozen-lockfile && pnpm run build",
+    "output_directory": "dist"
+  }
+}
+```
+
+### 4.3 在Cloudflare Pages中创建项目
+
+1. 登录您的[Cloudflare Dashboard](https://dash.cloudflare.com/)
+2. 在左侧菜单中选择`"Workers 和 Pages"`
    
-   - 推荐将头像放在 `src/assets/images/` 目录下
-   - 也可以放在 `public` 目录下，此时路径需以 `/` 开头
-   - 在`profileConfig`中更新头像路径
-
-2. 横幅图片：
+   ![](assets/images/2025-05-12-23-23-55-image.png)
+3. 点击`"创建"`后点击`"Pages"`
+4. 选择`"导入现有git存储库"`
    
-   - 推荐将横幅图片放在 `src/assets/images/` 目录下
-   - 在`siteConfig.banner`中更新路径
-
-3. 自定义网站图标：
+   ![](assets/images/2025-05-12-23-24-49-image.png)
+5. 选择GitHub作为Git提供商
+6. 授权Cloudflare访问我们的的博客仓库，然后点击`“开始设置”`
    
-   - 替换 `public/favicon` 目录下的文件
-   - 或在`siteConfig.favicon`数组中配置新的图标
+   ![](assets/images/2025-05-12-23-25-41-image.png)
+7. 在基本配置中：
+   - 项目名称：自定义项目名称，填你的博客名即可
+   - 生产分支：`main`
+   - 构建设置：
+     - 构建命令：`pnpm install --no-frozen-lockfile && pnpm run build`
+     - 构建输出目录：`dist`
+       
+       ![](assets/images/2025-05-12-23-26-18-image.png)
+8. 点击"保存并部署"
 
-## 创建并发布内容
+Cloudflare将开始构建和部署我们的博客。部署完成后，我们会获得一个`*.pages.dev`的网址。
 
-### 1. 创建新文章
+## 五：设置自定义域名（如果你有自己的域名）
 
-1. 使用内置命令创建文章：
+### 5.1 添加自定义域名
+
+1. 在左侧菜单中，`"Workers 和 Pages"`，点击我们刚创建的pages
    
-   ```bash
-   pnpm new-post 文章文件名
-   ```
+   ![](assets/images/2025-05-12-23-28-48-image.png)
+2. 点击`"自定义域"`，然后选择`“设置自定义域”`
    
-   这将在 `src/content/posts/` 目录下创建一个新的Markdown文件。
-
-2. 编辑文章的frontmatter信息：
+   ![](assets/images/2025-05-12-23-29-17-image.png)
+3. 输入你有的域名
+4. 选择DNS记录类型（通常为CNAME）
+5. 点击"继续"
    
-   ```markdown
-   ---
-   title: 文章标题
-   published: 2023-10-15
-   description: 文章描述
-   image: ./cover.jpg  # 可选的封面图片
-   tags: [标签1, 标签2]
-   category: 分类名称
-   draft: false  # 设为true表示草稿，不会发布
-   lang: zh  # 文章语言，如果和网站默认语言不同才需要设置
-   ---
-   
-   这里写文章内容...
-   ```
-
-3. 如果需要添加封面图片，将图片放在同一目录下，并在frontmatter中引用。
-
-### 2. 本地预览
-
-1. 运行开发服务器：
-   
-   ```bash
-   pnpm dev
-   ```
-
-2. 在浏览器中访问 `http://localhost:4321` 预览效果
-
-3. 进行必要的调整，直到满意为止
-
-## 部署到GitHub Pages
-
-### 1. 配置GitHub Pages
-
-首先，需要修改 `astro.config.mjs` 文件：
-
-1. 打开 `astro.config.mjs`
-
-2. 更新配置，添加site和base选项：
-   
-   ```javascript
-   export default defineConfig({
-   site: 'https://你的用户名.github.io',
-   // 如果不是部署在根目录，需要设置base路径
-   // base: '/仓库名', // 如果仓库名是 用户名.github.io，则不需要此行
-   // ... 其他配置 ...
-   });
-   ```
-
-### 2. 创建GitHub Actions工作流
-
-GitHub Actions可以自动化部署过程：
-
-1. 在项目根目录创建 `.github/workflows` 目录（如果不存在）
-
-2. 在该目录下创建 `deploy.yml` 文件，内容如下：
-   
-   ```yaml
-   name: Deploy to GitHub Pages
-   
-   on:
-   push:
-     branches: [main]
-   workflow_dispatch:
-   
-   permissions:
-   contents: read
-   pages: write
-   id-token: write
-   
-   jobs:
-   build:
-     runs-on: ubuntu-latest
-     steps:
-       - name: Checkout
-         uses: actions/checkout@v3
-       - name: Setup Node
-         uses: actions/setup-node@v3
-         with:
-           node-version: '18'
-           cache: 'npm'
-       - name: Setup PNPM
-         uses: pnpm/action-setup@v2
-         with:
-           version: 7
-       - name: Install dependencies
-         run: pnpm install && pnpm add sharp
-       - name: Build
-         run: pnpm build
-       - name: Upload Pages Artifact
-         uses: actions/upload-pages-artifact@v1
-         with:
-           path: "./dist"
-   
-   deploy:
-     needs: build
-     runs-on: ubuntu-latest
-     environment:
-       name: github-pages
-       url: ${{ steps.deployment.outputs.page_url }}
-     steps:
-       - name: Deploy to GitHub Pages
-         id: deployment
-         uses: actions/deploy-pages@v1
-   ```
-
-### 3. 启用GitHub Pages
-
-1. 进入GitHub上的仓库页面
-2. 点击 "Settings" > "Pages"
-3. 在 "Source" 部分，选择 "GitHub Actions"
-4. 保存设置
-
-### 4. 推送代码并触发部署
-
-1. 将更改添加到暂存区：
-   
-   ```bash
-   git add .
-   ```
-
-2. 提交更改：
-   
-   ```bash
-   git commit -m "Initial setup and configuration"
-   ```
-
-3. 推送到GitHub：
-   
-   ```bash
-   git push origin main
-   ```
-
-4. 在GitHub仓库页面的 "Actions" 标签页中可以查看部署进度
-
-5. 部署完成后，你的网站将在 `https://你的用户名.github.io` 可访问
-
-### 5. 配置自定义域名（可选）
-
-如果你有自己的域名：
-
-1. 在项目的 `public` 目录下创建 `CNAME` 文件，内容为你的自定义域名：
-   
-   ```
-   yourdomain.com
-   ```
-
-2. 提交并推送这个变更
-
-3. 在你的域名注册商控制面板中，添加DNS记录指向GitHub Pages：
-   
-   - 创建A记录：将`@`指向`185.199.108.153`、`185.199.109.153`、`185.199.110.153`和`185.199.111.153`
-   - 或创建CNAME记录：将`www`指向`你的用户名.github.io`
-
-## 使用Cloudflare代理加速
-
-### 1. 注册Cloudflare账号
-
-1. 访问 [Cloudflare官网](https://www.cloudflare.com/)
-2. 点击 "Sign Up"，完成注册流程
-
-### 2. 添加网站到Cloudflare
-
-1. 登录Cloudflare账号
-2. 点击 "Add a Site"
-3. 输入你的域名（例如：`yourdomain.com`）
-4. 选择免费计划
-5. Cloudflare会自动扫描你的DNS记录
-
-### 3. 更新域名服务器
-
-1. Cloudflare会提供两个名称服务器（NS）记录
-2. 登录你的域名注册商账号
-3. 找到名称服务器设置，将其更改为Cloudflare提供的名称服务器
-4. 更改可能需要24-48小时生效
-
-### 4. 配置DNS记录
-
-1. 在Cloudflare控制面板点击 "DNS" 选项卡
-2. 添加以下A记录（如果使用GitHub Pages）：
-   - 类型: A
-   - 名称: @
-   - IPv4地址: 185.199.108.153
-   - 代理状态: 已代理（橙色云朵）
-3. 对185.199.109.153、185.199.110.153和185.199.111.153重复此步骤
-4. 添加CNAME记录：
-   - 类型: CNAME
-   - 名称: www
-   - 目标: 你的用户名.github.io
-   - 代理状态: 已代理（橙色云朵）
-
-### 5. 配置Page Rules（可选）
-
-1. 点击 "Page Rules" 选项卡
-2. 点击 "Create Page Rule"
-3. 可以创建的规则示例：
-   - 设置始终使用HTTPS：
-     - URL模式: `http://*yourdomain.com/*`
-     - 设置: "Always Use HTTPS"
-   - 设置页面缓存：
-     - URL模式: `*yourdomain.com/*`
-     - 设置: "Cache Level" > "Cache Everything"
-
-### 6. 启用SSL/TLS
-
-1. 点击 "SSL/TLS" 选项卡
-2. 将SSL/TLS加密模式设置为 "Full" 或 "Full (Strict)"
-3. 在 "Edge Certificates" 部分确保 "Always Use HTTPS" 已启用
-
-### 7. 优化设置
-
-1. 在 "Speed" 选项卡下:
-   - 启用 "Auto Minify" 选项（HTML、CSS、JavaScript）
-   - 启用 "Brotli" 压缩
-   - 启用 "Rocket Loader"（如果网站兼容）
-2. 在 "Caching" 选项卡下:
-   - 调整浏览器缓存TTL设置
-   - 配置缓存级别
-
-## 网站备案指南
-
-> 注意：以下是中国大陆网站备案流程，如果你的服务器不在中国大陆或不面向中国大陆用户，可以跳过此步骤。使用Cloudflare代理的情况下，通常可以不用备案也能在国内访问。
-
-### 1. 了解备案要求
-
-在中国大陆，网站备案是指向工信部申请ICP备案。如果使用中国大陆服务器托管网站，必须完成备案。
-
-### 2. 备案途径
-
-有两种主要的备案途径：
-
-1. **通过服务器提供商备案**（推荐）：
-   
-   - 阿里云、腾讯云等云服务提供商提供免费的备案服务
-   - 流程相对简单，会有专人指导
-
-2. **直接向工信部申请**：
-   
-   - 流程较复杂
-   - 需要自行准备所有材料
-
-### 3. 备案所需材料
-
-1. **个人备案**：
-   
-   - 身份证正反面扫描件
-   - 手持身份证照片
-   - 域名证书（从域名注册商获取）
-   - 备案授权码（从服务器提供商获取）
-   - 网站真实性核验单（可在备案系统生成）
-
-2. **企业备案**：
-   
-   - 营业执照副本扫描件
-   - 法定代表人身份证正反面扫描件
-   - 域名证书
-   - 备案授权码
-   - 网站负责人身份证正反面扫描件
-   - 网站真实性核验单
-
-### 4. 备案流程
-
-1. **准备工作**：
-   
-   - 确认域名已完成实名认证
-   - 确保域名有效期大于3个月
-   - 准备好所有备案材料
-   - 设计好网站首页和内容（审核时需要）
-
-2. **提交备案申请**：
-   
-   - 登录服务商备案系统
-   - 填写备案信息
-   - 上传备案材料
-   - 进行网站内容和负责人审核
-
-3. **短信核验**：
-   
-   - 收到短信验证码
-   - 在规定时间内完成验证
-
-4. **管局审核**：
-   
-   - 提交后工信部会进行审核
-   - 审核时间通常为5-20个工作日
-
-5. **获取备案号**：
-   
-   - 审核通过后获得ICP备案号
-   - 需要在网站底部显示备案号和链接
-
-### 5. 备案后注意事项
-
-1. 网站内容必须与备案信息一致
-2. 网站底部必须显示ICP备案号和工信部链接
-3. 定期查看备案信息是否需要更新
-4. 如网站内容有重大变更，需要及时更新备案信息
-
-## 维护与更新
-
-### 1. 日常维护
-
-1. **内容更新**：
-   
-   ```bash
-   # 创建新文章
-   pnpm new-post 新文章名
-   
-   # 本地预览
-   pnpm dev
-   
-   # 提交变更
-   git add .
-   git commit -m "Add new post: 文章标题"
-   git push origin main
-   ```
-
-2. **依赖更新**：
-   
-   ```bash
-   # 检查过时的依赖
-   pnpm outdated
-   
-   # 更新依赖
-   pnpm update
-   ```
-
-### 2. 主题更新
-
-1. 将原始Fuwari仓库添加为远程仓库：
-   
-   ```bash
-   git remote add upstream https://github.com/saicaca/fuwari.git
-   ```
-
-2. 获取上游更新：
-   
-   ```bash
-   git fetch upstream
-   ```
-
-3. 合并更新（可能需要解决冲突）：
-   
-   ```bash
-   git merge upstream/main
-   ```
-
-4. 推送更新：
-   
-   ```bash
-   git push origin main
-   ```
-
-## 常见问题解答
-
-### 1. 部署问题
-
-**Q: GitHub Actions部署失败怎么办？**
-
-A: 检查workflow文件是否正确，确保所有依赖都已正确安装。查看Actions日志以获取详细错误信息。
-
-**Q: 网站部署成功但无法访问怎么办？**
-
-A: 检查域名DNS设置是否正确，Cloudflare代理是否配置好。可能需要等待DNS传播（最多48小时）。
-
-### 2. Cloudflare问题
-
-**Q: Cloudflare显示"DNS记录活跃但不是通过Cloudflare代理"？**
-
-A: 确保DNS记录的状态是橙色云朵（已代理），而不是灰色云朵（仅DNS）。
-
-**Q: Cloudflare代理后网站加载变慢？**
-
-A: 尝试关闭一些高级功能，如Rocket Loader或某些Page Rules。测试不同的缓存设置。
-
-### 3. 内容管理问题
-
-**Q: 如何添加图片到文章中？**
-
-A: 将图片放在与Markdown文件相同的目录下，然后使用相对路径引用：`![描述](./图片名.jpg)`
-
-**Q: 如何创建新页面（非博客文章）？**
-
-A: 在`src/pages/`目录下创建新的`.astro`或`.md`文件。
-
-**Q: 如何修改导航菜单？**
-
-A: 编辑`src/config.ts`文件中的`navBarConfig`对象的`links`数组。~~~~~~~~
+   之后我们就能访问自定义域名来访问我们的博客了！
