@@ -1,0 +1,6 @@
+{
+  "build": {
+    "command": "pnpm install --no-frozen-lockfile && pnpm run build",
+    "output_directory": "dist"
+  }
+} 
