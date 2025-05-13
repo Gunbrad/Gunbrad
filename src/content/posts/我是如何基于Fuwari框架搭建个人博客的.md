@@ -68,7 +68,7 @@ lang: ''
 
 `git clone https://github.com/YOUR_USERNAME/REPO_NAME.git`
 
-替换 YOUR_USERNAME 为您的GitHub用户名，REPO_NAME 为仓库名称
+替换 YOUR_USERNAME 为自己的GitHub用户名，REPO_NAME 为仓库名称
 
 ### 1.3 安装依赖
 
