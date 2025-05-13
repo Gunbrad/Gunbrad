@@ -21,7 +21,7 @@ lang: ''
 - [一：获取Fuwari框架并完成配置](#获取Fuwari框架并完成配置)
 - [二：文章编写](#二文章编写)
 - [三：部署到GitHub](#三部署到github)
-- [四：配置Cloudflare Pages](#四配置Cloudflare Pages)
+- [四：配置Cloudflare Pages](#四配置cloudflare-pages)
 - [五：设置自定义域名](#五设置自定义域名)
 
 ## 前置准备
@@ -84,35 +84,35 @@ lang: ''
 
 ```typescript
 export const siteConfig: SiteConfig = {
-	title: "Gunbrad Blog", // 博客名称
-	subtitle: "",
-	lang: "zh_CN", // 博客语言，选择zh_CN即为中文
-	themeColor: {
-		hue: 280, // 博客的颜色主题
-		fixed: true, // 设为true游客不能自主调整博客颜色主题
-	},
-	banner: {
-		enable: false, // 是否开启banner图
-		src: "assets/images/banner5.jpg", // banner的路径，放在assets/images目录下
-		position: "bottom", // Equivalent to object-position, only supports 'top', 'center', 'bottom'. 'center' by default
-		credit: {
-			enable: false, // Display the credit text of the banner image
-			text: "", // Credit text to be displayed
-			url: "", // (Optional) URL link to the original artwork or artist's page
-		},
-	},
-	toc: {
-		enable: true, // Display the table of contents on the right side of the post
-		depth: 2, // Maximum heading depth to show in the table, from 1 to 3
-	},
-	favicon: [
-		// Leave this array empty to use the default favicon
-		// {
-		//   src: '/favicon/icon.png',    // Path of the favicon, relative to the /public directory
-		//   theme: 'light',              // (Optional) Either 'light' or 'dark', set only if you have different favicons for light and dark mode
-		//   sizes: '32x32',              // (Optional) Size of the favicon, set only if you have favicons of different sizes
-		// }
-	],
+    title: "Gunbrad Blog", // 博客名称
+    subtitle: "",
+    lang: "zh_CN", // 博客语言，选择zh_CN即为中文
+    themeColor: {
+        hue: 280, // 博客的颜色主题
+        fixed: true, // 设为true游客不能自主调整博客颜色主题
+    },
+    banner: {
+        enable: false, // 是否开启banner图
+        src: "assets/images/banner5.jpg", // banner的路径，放在assets/images目录下
+        position: "bottom", // Equivalent to object-position, only supports 'top', 'center', 'bottom'. 'center' by default
+        credit: {
+            enable: false, // Display the credit text of the banner image
+            text: "", // Credit text to be displayed
+            url: "", // (Optional) URL link to the original artwork or artist's page
+        },
+    },
+    toc: {
+        enable: true, // Display the table of contents on the right side of the post
+        depth: 2, // Maximum heading depth to show in the table, from 1 to 3
+    },
+    favicon: [
+        // Leave this array empty to use the default favicon
+        // {
+        //   src: '/favicon/icon.png',    // Path of the favicon, relative to the /public directory
+        //   theme: 'light',              // (Optional) Either 'light' or 'dark', set only if you have different favicons for light and dark mode
+        //   sizes: '32x32',              // (Optional) Size of the favicon, set only if you have favicons of different sizes
+        // }
+    ],
 };
 ```
 
@@ -124,22 +124,22 @@ export const profileConfig: ProfileConfig = {
   name: "你的名字", // 你的名字
   bio: "个人简介", // 你的个人简介
   links: [
-		{
-			name: "QQ",
-			icon: "fa6-brands:qq", // 在icons.js这个网站寻找对应的图标，fa6-brands系列的图标就足够了
-			url: "https://qm.qq.com/q/iejWCmdg2c", // 手机QQ的“我的二维码”界面的分享功能可以复制链接，粘贴在此处即可
-		},
-		 {
-			name: "Wechat",
-			icon: "fa6-brands:weixin", // 我在前端编写了代码，悬停时可显示出微信的二维码
-			url: "",
-		},
-		{
-			name: "GitHub",
-			icon: "fa6-brands:github",
-			url: "https://github.com/Gunbrad", // url表示目标链接，点击即跳转
-		},
-	],
+        {
+            name: "QQ",
+            icon: "fa6-brands:qq", // 在icons.js这个网站寻找对应的图标，fa6-brands系列的图标就足够了
+            url: "https://qm.qq.com/q/iejWCmdg2c", // 手机QQ的“我的二维码”界面的分享功能可以复制链接，粘贴在此处即可
+        },
+         {
+            name: "Wechat",
+            icon: "fa6-brands:weixin", // 我在前端编写了代码，悬停时可显示出微信的二维码
+            url: "",
+        },
+        {
+            name: "GitHub",
+            icon: "fa6-brands:github",
+            url: "https://github.com/Gunbrad", // url表示目标链接，点击即跳转
+        },
+    ],
 
 };
 ```
@@ -148,16 +148,16 @@ export const profileConfig: ProfileConfig = {
 
 ```typescript
 export const navBarConfig: NavBarConfig = {
-	links: [
-		LinkPreset.Home,
-		LinkPreset.Archive,
-		LinkPreset.About,
-		{
-			name: "GitHub",
-			url: "https://github.com/saicaca/fuwari", 
-			external: true, 
-		},
-	],
+    links: [
+        LinkPreset.Home,
+        LinkPreset.Archive,
+        LinkPreset.About,
+        {
+            name: "GitHub",
+            url: "https://github.com/saicaca/fuwari", 
+            external: true, 
+        },
+    ],
 };
 ```
 
@@ -318,25 +318,37 @@ frozen-lockfile = false
 ### 4.3 在Cloudflare Pages中创建项目
 
 1. 登录您的[Cloudflare Dashboard](https://dash.cloudflare.com/)
+
 2. 在左侧菜单中选择`"Workers 和 Pages"`
    
    ![](assets/images/2025-05-12-23-23-55-image.png)
+
 3. 点击`"创建"`后点击`"Pages"`
+
 4. 选择`"导入现有git存储库"`
    
    ![](assets/images/2025-05-12-23-24-49-image.png)
+
 5. 选择GitHub作为Git提供商
+
 6. 授权Cloudflare访问我们的的博客仓库，然后点击`“开始设置”`
    
    ![](assets/images/2025-05-12-23-25-41-image.png)
+
 7. 在基本配置中：
+   
    - 项目名称：自定义项目名称，填你的博客名即可
+   
    - 生产分支：`main`
+   
    - 构建设置：
+     
      - 构建命令：`pnpm install --no-frozen-lockfile && pnpm run build`
+     
      - 构建输出目录：`dist`
        
        ![](assets/images/2025-05-12-23-26-18-image.png)
+
 8. 点击"保存并部署"
 
 Cloudflare将开始构建和部署我们的博客。部署完成后，我们会获得一个`*.pages.dev`的网址。
@@ -348,11 +360,15 @@ Cloudflare将开始构建和部署我们的博客。部署完成后，我们会�
 1. 在左侧菜单中，`"Workers 和 Pages"`，点击我们刚创建的pages
    
    ![](assets/images/2025-05-12-23-28-48-image.png)
+
 2. 点击`"自定义域"`，然后选择`“设置自定义域”`
    
    ![](assets/images/2025-05-12-23-29-17-image.png)
+
 3. 输入你有的域名
+
 4. 选择DNS记录类型（通常为CNAME）
+
 5. 点击"继续"
    
    之后我们就能访问自定义域名来访问我们的博客了！
