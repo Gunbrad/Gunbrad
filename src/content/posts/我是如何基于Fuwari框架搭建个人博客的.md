@@ -1,5 +1,5 @@
 ---
-title: 基于fuwari搭建个人博客教程
+title: 我是如何基于Fuwari框架搭建个人博客的
 published: 2025-05-12
 description: ''
 image: ''
@@ -18,13 +18,11 @@ lang: ''
 ## 目录
 
 - [前置准备](#前置准备)
-- [第一部分：获取并配置Fuwari框架](#第一部分获取并配置fuwari框架)
-- [第二部分：本地开发与内容创建](#第二部分本地开发与内容创建)
-- [第三部分：部署到GitHub](#第三部分部署到github)
-- [第四部分：配置Cloudflare Pages](#第四部分配置cloudflare-pages)
-- [第五部分：设置自定义域名](#第五部分设置自定义域名)
-- [第六部分：配置Twikoo评论系统](#第六部分配置twikoo评论系统)
-- [常见问题与解决方案](#常见问题与解决方案)
+- [一：获取Fuwari框架并完成配置](#获取Fuwari框架并完成配置)
+- [二：文章编写](#二文章编写)
+- [三：部署到GitHub](#三部署到github)
+- [四：配置Cloudflare Pages](#四配置Cloudflare Pages)
+- [五：设置自定义域名](#五设置自定义域名)
 
 ## 前置准备
 
@@ -34,7 +32,6 @@ lang: ''
    
    - [Node.js](https://nodejs.org/) 18.x 或更高版本
    - [Git](https://git-scm.com/)
-   - 一个代码编辑器，如 [Visual Studio Code](https://code.visualstudio.com/)
 
 2. **账号**：
    
@@ -44,7 +41,6 @@ lang: ''
 3. **可选**：
    
    - 自己的域名（如果使用自定义域名）
-   - [MongoDB Atlas](https://www.mongodb.com/cloud/atlas) 账号（如果使用Twikoo评论系统）
 
 ## 一：获取Fuwari框架并完成配置
 
