@@ -1,5 +1,5 @@
 ---
-title: 使用cloudflare自定义邮箱白嫖cursor
+title: 使用Cloudflare自定义邮箱白嫖cursor
 published: 2025-05-13
 description: ''
 image: ''
