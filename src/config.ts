@@ -87,6 +87,6 @@ export const commentConfig: CommentConfig = {
 	enable: true, // 是否启用评论系统
 	system: 'twikoo', // 评论系统类型
 	twikoo: {
-		envId: 'https://twikoo-api-xi.vercel.app/', // Twikoo环境ID
+		envId: 'https://twikoo.gunbrad.xyz', // Twikoo环境ID
 	}
 };
