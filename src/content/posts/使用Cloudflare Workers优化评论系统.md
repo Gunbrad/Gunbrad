@@ -7,15 +7,15 @@ category: '博客'
 draft: false
 ---
 
-## 1. 问题背景
+## 一： 问题背景
 
 我用Vercel + MongoDB Atlas + Twikoo 搭建了博客的评论系统，今天测试时发现，只有常挂梯子时才能正常加载出评论功能。这是因为Vercel的服务在中国大陆无法正常访问，导致评论系统无法加载。
 
-## 2. 解决方案
+## 二： 解决方案
 
 使用Cloudflare的Workers功能搭建反向代理，实现智能分流。这样无论用户是否使用VPN，都能正常加载评论系统。（cloudflare真香）
 
-## 3. 实施步骤
+## 三： 实施步骤
 
 ### 3.1 创建Cloudflare Worker
 
