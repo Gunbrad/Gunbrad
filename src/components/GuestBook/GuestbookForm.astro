@@ -202,7 +202,13 @@ const emojiCategories = [
         >
           <div class="flex items-center gap-3 mb-2">
             <div id="avatar-preview" class="w-8 h-8 rounded-full bg-gray-200 flex-shrink-0 shadow-sm"></div>
-            <div class="font-medium text-base" id="preview-nickname">访客</div>
+            <div>
+              <div class="font-medium text-base" id="preview-nickname">访客</div>
+              <div class="flex text-xs opacity-70 gap-2">
+                <span>2023-06-25</span>
+                <span class="flex items-center"><svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-0.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" /></svg>位置预览</span>
+              </div>
+            </div>
           </div>
           <div id="preview-content" class="text-sm">这是一条示例留言内容，你可以调整样式看看效果如何。</div>
         </div>
@@ -502,27 +508,35 @@ const emojiCategories = [
       // 获取用户地理位置
       let locationInfo = '未知位置';
       try {
-        const ipResponse = await fetch('https://api.ipify.org?format=json');
-        if (ipResponse.ok) {
-          const ipData = await ipResponse.json();
-          const ipAddress = ipData.ip;
+        // 直接使用ipinfo.io获取IP和地理位置信息
+        const geoResponse = await fetch('https://ipinfo.io/json', {
+          headers: {
+            'Accept': 'application/json'
+          }
+        });
+        
+        if (geoResponse.ok) {
+          const geoData = await geoResponse.json();
           
-          // 使用ip-api获取地理位置信息
-          const geoResponse = await fetch(`https://ip-api.com/json/${ipAddress}?lang=zh-CN&fields=status,message,country,regionName,city`);
-          if (geoResponse.ok) {
-            const geoData = await geoResponse.json();
-            if (geoData.status === 'success') {
-              // 只保留省市地区信息
-              const country = geoData.country || '';
-              const region = geoData.regionName || '';
-              const city = geoData.city || '';
-              
-              if (country === '中国') {
-                locationInfo = region + (city ? ' · ' + city : '');
+          // 获取位置信息
+          const country = geoData.country || '';  // 国家代码
+          const region = geoData.region || '';    // 地区/省份
+          const city = geoData.city || '';        // 城市
+          
+          // 根据国家代码处理显示方式
+          if (country === 'CN') {
+            // 中国显示为：省份 · 城市
+            locationInfo = region + (city ? ' · ' + city : '');
               } else {
-                locationInfo = country + (region ? ' · ' + region : '');
-              }
-            }
+            // 国外显示为：国家 · 城市
+            const countryMap = {
+              'US': '美国', 'GB': '英国', 'JP': '日本', 'KR': '韩国', 
+              'CA': '加拿大', 'AU': '澳大利亚', 'DE': '德国', 'FR': '法国',
+              'RU': '俄罗斯', 'SG': '新加坡', 'MY': '马来西亚', 'TH': '泰国'
+            };
+            
+            const countryName = countryMap[country] || country;
+            locationInfo = '海外 · ' + (city ? city : countryName);
           }
         }
       } catch (locationError) {
