@@ -1,0 +1,84 @@
+---
+import MainGridLayout from "../layouts/MainGridLayout.astro";
+import GuestbookForm from "../components/GuestBook/GuestbookForm.astro";
+import GuestbookWall from "../components/GuestBook/GuestbookWall.astro";
+
+// 设置页面元数据
+const pageTitle = "留言墙 | Gunbrad的博客";
+const pageDescription = "欢迎来到留言墙，在这里你可以与博主交流！";
+---
+
+<MainGridLayout title={pageTitle} description={pageDescription}>
+  <div class="flex flex-col space-y-8 relative w-full mb-8 onload-animation">
+    <!-- 留言墙 -->
+    <div class="card-base px-6 md:px-9 py-6 pb-16 rounded-[var(--radius-large)] relative bg-gradient-to-br from-blue-50/90 to-gray-50/90 backdrop-blur-sm">
+      <GuestbookWall />
+      
+      <!-- 弹出表单按钮 - 固定在留言墙底部中央 -->
+      <div class="text-center absolute bottom-8 left-0 right-0 z-20">
+        <button 
+          id="open-form-button"
+          class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all transform hover:-translate-y-1 shadow-md"
+          onclick="document.getElementById('form-modal').classList.remove('hidden'); document.body.style.overflow='hidden';"
+        >
+          <span class="flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd" />
+            </svg>
+            写留言
+          </span>
+        </button>
+      </div>
+    </div>
+    
+    <!-- 弹出表单模态框 -->
+    <div id="form-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden">
+      <div class="bg-white rounded-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto relative shadow-xl">
+        <button 
+          id="close-form-button" 
+          class="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+          onclick="document.getElementById('form-modal').classList.add('hidden'); document.body.style.overflow='';"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+        <div class="p-8">
+          <GuestbookForm />
+        </div>
+      </div>
+    </div>
+  </div>
+</MainGridLayout>
+
+<style>
+  /* 留言墙容器样式 */
+  .card-base {
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(229, 231, 235, 0.5);
+  }
+</style>
+
+<script is:inline>
+  // 使用inline脚本确保每次页面加载时都执行
+  document.addEventListener('click', function(e) {
+    // 点击背景关闭模态框
+    if (e.target.id === 'form-modal') {
+      document.getElementById('form-modal').classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+  });
+  
+  // ESC键关闭
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      const formModal = document.getElementById('form-modal');
+      if (formModal && !formModal.classList.contains('hidden')) {
+        formModal.classList.add('hidden');
+        document.body.style.overflow = '';
+      }
+    }
+  });
+
+  console.log('留言墙页面脚本已加载，版本：', new Date().toISOString());
+</script> 

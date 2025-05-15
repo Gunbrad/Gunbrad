@@ -1,5 +1,5 @@
 ---
-title: 使用Cloudflare Workers优化评论系统
+title: 使用Cloudflare Workers反向代理优化评论系统
 published: 2025-05-14
 description: ''
 tags: [记录]
@@ -9,7 +9,7 @@ draft: false
 
 ## 一： 问题背景
 
-我用Vercel + MongoDB Atlas + Twikoo 搭建了博客的评论系统，今天测试时发现，只有常挂梯子时才能正常加载出评论功能。这是因为Vercel的服务在中国大陆无法正常访问，导致评论系统无法加载。
+我用Vercel + MongoDB Atlas + Twikoo 搭建了博客的评论系统，今天测试时发现，只有常挂梯子时才能正常加载出评论功能。这是因为Vercel服务在中国无法正常访问，导致评论系统无法加载。
 
 ## 二： 解决方案
 

@@ -1,0 +1,494 @@
+---
+// 预设样式选项
+const stylePresets = [
+  { name: '简约白', backgroundColor: '#ffffff', textColor: '#374151', borderStyle: 'solid', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)' },
+  { name: '暖阳', backgroundColor: '#fff7ed', textColor: '#c2410c', borderStyle: 'solid', boxShadow: '0 4px 10px rgba(194, 65, 12, 0.1)' },
+  { name: '海洋', backgroundColor: '#f0f9ff', textColor: '#0369a1', borderStyle: 'solid', boxShadow: '0 4px 10px rgba(3, 105, 161, 0.1)' },
+  { name: '森林', backgroundColor: '#f0fdf4', textColor: '#166534', borderStyle: 'solid', boxShadow: '0 4px 10px rgba(22, 101, 52, 0.1)' },
+  { name: '晚霞', backgroundColor: '#fef2f2', textColor: '#b91c1c', borderStyle: 'solid', boxShadow: '0 4px 10px rgba(185, 28, 28, 0.1)' },
+  { name: '葡萄', backgroundColor: '#faf5ff', textColor: '#7e22ce', borderStyle: 'dashed', boxShadow: '0 4px 10px rgba(126, 34, 206, 0.1)' },
+  { name: '樱花', backgroundColor: '#fdf4ff', textColor: '#a21caf', borderStyle: 'dashed', boxShadow: '0 4px 10px rgba(162, 28, 175, 0.1)' },
+  { name: '清新', backgroundColor: '#ecfeff', textColor: '#0e7490', borderStyle: 'dotted', boxShadow: '0 4px 10px rgba(14, 116, 144, 0.1)' },
+  { name: '灰调', backgroundColor: '#f8fafc', textColor: '#334155', borderStyle: 'none', boxShadow: '0 4px 6px rgba(51, 65, 85, 0.05)' },
+  { name: '日落', backgroundColor: '#fefce8', textColor: '#854d0e', borderStyle: 'solid', boxShadow: '0 4px 10px rgba(133, 77, 14, 0.1)' },
+  { name: '宁静', backgroundColor: '#f5f5f5', textColor: '#262626', borderStyle: 'solid', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.03)' },
+  { name: '玫瑰', backgroundColor: '#fff1f2', textColor: '#be123c', borderStyle: 'solid', boxShadow: '0 4px 10px rgba(190, 18, 60, 0.1)' }
+];
+
+// 常用表情列表
+const commonEmojis = [
+  '😊', '😂', '🥰', '😍', '😎', '🤔', '😄', '😅', '🤣', '😘',
+  '👍', '🎉', '🔥', '✨', '💖', '💕', '💯', '🙏', '👏', '🌹',
+  '😭', '😢', '😡', '🤩', '😴', '🤗', '🤫', '🤪', '😇', '🥳'
+];
+
+// 表情分类
+const emojiCategories = [
+  { name: '常用', icon: '😊' },
+  { name: '表情', icon: '😀' },
+  { name: '手势', icon: '👍' },
+  { name: '动物', icon: '🐱' },
+  { name: '食物', icon: '🍎' },
+  { name: '自然', icon: '🌈' },
+  { name: '符号', icon: '❤️' }
+];
+---
+
+<div class="guestbook-form bg-white/80 backdrop-blur-sm shadow-lg px-5 py-6 relative w-full max-w-2xl mx-auto rounded-xl border border-gray-100">
+  
+  <!-- 错误信息 -->
+  <div id="form-error-message" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 hidden">
+    <p class="font-bold">提交失败</p>
+    <p class="text-sm" id="error-message-text"></p>
+  </div>
+  
+  <!-- 成功信息 -->
+  <div id="form-success-message" class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4 hidden">
+    <p class="font-bold">提交成功</p>
+    <p class="text-sm">留言已成功提交，感谢您的参与！</p>
+  </div>
+  
+  <!-- 加载状态提示 -->
+  <div id="form-loading-message" class="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded mb-4 hidden">
+    <div class="flex items-center">
+      <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+      </svg>
+      <p><span class="font-medium">留言提交中...</span> 请稍候，这可能需要几秒钟</p>
+    </div>
+  </div>
+  
+  <!-- 直接使用表单提交到服务器 -->
+  <form 
+    id="guestbook-form" 
+    class="space-y-4" 
+    action="/api/guestbook/submit-simple" 
+    method="POST"
+    onsubmit="showLoadingState(); return validateForm();"
+  >
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <!-- 昵称 -->
+      <div class="form-control">
+        <label for="nickname" class="block mb-1 text-sm font-medium">昵称 <span class="text-red-500">*</span></label>
+        <input 
+          type="text" 
+          id="nickname" 
+          name="nickname" 
+          required 
+          maxlength="30"
+          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 shadow-sm"
+          placeholder="请输入你的昵称"
+          onInput="updatePreview()"
+        />
+      </div>
+      
+      <!-- QQ邮箱 -->
+      <div class="form-control">
+        <label for="qq-email" class="block mb-1 text-sm font-medium">QQ邮箱 (可获取头像)</label>
+        <input 
+          type="email" 
+          id="qq-email" 
+          name="qq_email" 
+          pattern="[0-9]+@qq\.com"
+          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 shadow-sm"
+          placeholder="例如：123456@qq.com"
+          onInput="updateQQAvatar()"
+        />
+        <p class="text-xs text-gray-500 mt-1">填写QQ邮箱可自动获取QQ头像</p>
+      </div>
+    </div>
+    
+    <!-- 留言内容 -->
+    <div class="form-control relative">
+      <label for="content" class="block mb-1 text-sm font-medium">留言内容 <span class="text-red-500">*</span></label>
+      <div class="relative">
+        <textarea 
+          id="content" 
+          name="content" 
+          required 
+          rows="3"
+          maxlength="500"
+          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 shadow-sm"
+          placeholder="写下你的留言..."
+          onInput="updatePreview(); updateContentLength();"
+        ></textarea>
+        
+        <!-- 表情选择器按钮 -->
+        <button 
+          type="button" 
+          id="emoji-button"
+          class="absolute right-2 bottom-2 text-gray-500 hover:text-gray-700 transition-colors p-1 rounded-full hover:bg-gray-100"
+          aria-label="插入表情"
+          onClick="toggleEmojiPicker()"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </button>
+      </div>
+      
+      <!-- 表情选择器面板 -->
+      <div id="emoji-picker" class="hidden absolute z-10 right-0 bottom-16 bg-white border border-gray-200 rounded-lg shadow-xl p-3 w-full max-w-md">
+        <!-- 表情分类选项卡 -->
+        <div class="flex border-b border-gray-200 mb-2 pb-2 overflow-x-auto">
+          {emojiCategories.map((category, index) => (
+            <button 
+              type="button"
+              class={`emoji-category-tab px-3 py-2 text-sm whitespace-nowrap ${index === 0 ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
+              data-category={category.name}
+              onClick={`switchEmojiCategory('${category.name}')`}
+            >
+              <span class="mr-1">{category.icon}</span>
+              <span>{category.name}</span>
+            </button>
+          ))}
+        </div>
+        
+        <!-- 表情内容区域 -->
+        <div class="emoji-container grid grid-cols-8 gap-2 max-h-48 overflow-y-auto p-2">
+          {commonEmojis.map(emoji => (
+            <button 
+              type="button"
+              class="emoji-btn w-8 h-8 text-xl flex items-center justify-center hover:bg-blue-50 rounded-md transition-colors"
+              onClick={`insertEmoji('${emoji}')`}
+            >
+              {emoji}
+            </button>
+          ))}
+        </div>
+      </div>
+      
+      <div class="flex justify-between items-center mt-1">
+        <p class="text-xs text-gray-500">
+          <span id="content-length">0</span>/500 字
+        </p>
+      </div>
+    </div>
+    
+    <!-- 样式选择 -->
+    <div class="form-control">
+      <label class="block mb-1 text-sm font-medium">选择留言样式</label>
+      
+      <div class="grid grid-cols-4 md:grid-cols-6 gap-2 overflow-x-auto hide-scrollbar">
+        {stylePresets.map((style, index) => (
+          <button 
+            type="button"
+            class="style-preset p-1.5 rounded-lg border text-center text-xs transition-all transform hover:-translate-y-1"
+            data-index={index}
+            data-background={style.backgroundColor}
+            data-textcolor={style.textColor}
+            data-borderstyle={style.borderStyle}
+            data-boxshadow={style.boxShadow}
+            style={`background-color: ${style.backgroundColor}; color: ${style.textColor}; border-style: ${style.borderStyle}; box-shadow: ${style.boxShadow};`}
+            onClick={`setStylePreset(${index})`}
+          >
+            {style.name}
+          </button>
+        ))}
+      </div>
+      
+      <!-- 隐藏字段用于存储样式值和IP哈希 -->
+      <input type="hidden" id="background-color" name="background_color" value="#ffffff" />
+      <input type="hidden" id="text-color" name="text_color" value="#374151" />
+      <input type="hidden" id="border-style" name="border_style" value="solid" />
+      <input type="hidden" id="ip-hash" name="ip_hash" value="anon-12345" />
+      
+      <!-- 样式预览 -->
+      <div class="mt-4">
+        <p class="text-sm font-medium mb-2">预览效果：</p>
+        <div 
+          id="style-preview" 
+          class="p-4 rounded-lg border shadow-lg transform transition-all duration-300"
+          style="background-color: #ffffff; color: #374151; border-style: solid; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);"
+        >
+          <div class="flex items-center gap-3 mb-2">
+            <div id="avatar-preview" class="w-8 h-8 rounded-full bg-gray-200 flex-shrink-0 shadow-sm"></div>
+            <div class="font-medium text-base" id="preview-nickname">访客</div>
+          </div>
+          <div id="preview-content" class="text-sm">这是一条示例留言内容，你可以调整样式看看效果如何。</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 提交按钮 -->
+    <div class="flex justify-center mt-6">
+      <button 
+        type="submit" 
+        id="submit-button"
+        class="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all transform hover:-translate-y-1 shadow-md font-medium"
+      >
+        <span class="flex items-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414z" clip-rule="evenodd" />
+          </svg>
+          提交留言
+        </span>
+      </button>
+    </div>
+  </form>
+</div>
+
+<!-- 使用defer确保DOM已加载 -->
+<script is:inline>
+  // 全局定义预览更新函数
+  function updatePreview() {
+    const nickname = document.getElementById('nickname')?.value || '访客';
+    const content = document.getElementById('content')?.value || '这是一条示例留言内容，你可以调整样式看看效果如何。';
+    const backgroundColor = document.getElementById('background-color')?.value || '#ffffff';
+    const textColor = document.getElementById('text-color')?.value || '#374151';
+    const borderStyle = document.getElementById('border-style')?.value || 'solid';
+    
+    const previewNickname = document.getElementById('preview-nickname');
+    const previewContent = document.getElementById('preview-content');
+    const stylePreview = document.getElementById('style-preview');
+    
+    if (previewNickname) previewNickname.textContent = nickname;
+    if (previewContent) previewContent.textContent = content;
+    if (stylePreview) {
+      stylePreview.style.backgroundColor = backgroundColor;
+      stylePreview.style.color = textColor;
+      stylePreview.style.borderStyle = borderStyle;
+    }
+  }
+  
+  // 更新内容长度计数器
+  function updateContentLength() {
+    const content = document.getElementById('content')?.value || '';
+    const lengthDisplay = document.getElementById('content-length');
+    if (lengthDisplay) lengthDisplay.textContent = content.length;
+  }
+  
+  // 切换表情选择器
+  function toggleEmojiPicker() {
+    const emojiPicker = document.getElementById('emoji-picker');
+    if (emojiPicker) {
+      emojiPicker.classList.toggle('hidden');
+    }
+  }
+  
+  // 切换表情分类
+  function switchEmojiCategory(category) {
+    // 设置活动标签
+    const tabs = document.querySelectorAll('.emoji-category-tab');
+    tabs.forEach(tab => {
+      if (tab.dataset.category === category) {
+        tab.classList.add('text-blue-600', 'border-b-2', 'border-blue-600');
+        tab.classList.remove('text-gray-500', 'hover:text-gray-700');
+      } else {
+        tab.classList.remove('text-blue-600', 'border-b-2', 'border-blue-600');
+        tab.classList.add('text-gray-500', 'hover:text-gray-700');
+      }
+    });
+    
+    // 根据分类加载表情
+    const emojiContainer = document.querySelector('.emoji-container');
+    if (!emojiContainer) return;
+    
+    // 根据分类获取表情列表（这里简化实现，实际可以根据分类获取不同的表情）
+    const categoryEmojis = {
+      '常用': ['😊', '😂', '🥰', '😍', '😎', '🤔', '😄', '😅', '🤣', '😘', '👍', '🎉', '🔥', '✨', '💖', '💕', '💯', '🙏', '👏', '🌹'],
+      '表情': ['😀', '😃', '😄', '😁', '😆', '😅', '😂', '🤣', '😊', '😇', '🙂', '🙃', '😉', '😌', '😍', '🥰', '😘', '😗', '😙', '😚'],
+      '手势': ['👍', '👎', '👊', '✊', '🤛', '🤜', '🤞', '✌️', '🤟', '🤘', '👌', '👈', '👉', '👆', '👇', '☝️', '✋', '🤚', '🖐', '🖖'],
+      '动物': ['🐱', '🐶', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', '🐨', '🐯', '🦁', '🐮', '🐷', '🐸', '🐵', '🙈', '🙉', '🙊', '🐔', '🐧'],
+      '食物': ['🍎', '🍐', '🍊', '🍋', '🍌', '🍉', '🍇', '🍓', '🍈', '🍒', '🍑', '🥭', '🍍', '🥥', '🥝', '🍅', '🍆', '🥑', '🥦', '🥬'],
+      '自然': ['🌈', '☀️', '🌤', '⛅️', '🌥', '☁️', '🌦', '🌧', '⛈', '🌩', '🌨', '❄️', '☃️', '⛄️', '🌬', '💨', '🌪', '🌫', '🌊', '💧'],
+      '符号': ['❤️', '🧡', '💛', '💚', '💙', '💜', '🖤', '🤍', '🤎', '💔', '❣️', '💕', '💞', '💓', '💗', '💖', '💘', '💝', '💟', '☮️']
+    };
+    
+    const emojis = categoryEmojis[category] || categoryEmojis['常用'];
+    
+    // 更新表情容器
+    emojiContainer.innerHTML = '';
+    emojis.forEach(emoji => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'emoji-btn w-8 h-8 text-xl flex items-center justify-center hover:bg-blue-50 rounded-md transition-colors';
+      button.textContent = emoji;
+      button.onclick = function() {
+        insertEmoji(emoji);
+      };
+      emojiContainer.appendChild(button);
+    });
+  }
+  
+  // 插入表情到留言内容
+  function insertEmoji(emoji) {
+    const contentEl = document.getElementById('content');
+    if (!contentEl) return;
+    
+    const start = contentEl.selectionStart;
+    const end = contentEl.selectionEnd;
+    const text = contentEl.value;
+    const newText = text.substring(0, start) + emoji + text.substring(end);
+    
+    contentEl.value = newText;
+    contentEl.selectionStart = contentEl.selectionEnd = start + emoji.length;
+    
+    // 关闭表情选择器
+    const emojiPicker = document.getElementById('emoji-picker');
+    if (emojiPicker) emojiPicker.classList.add('hidden');
+    
+    // 触发内容更新事件
+    contentEl.dispatchEvent(new Event('input'));
+  }
+  
+  // 设置样式预设
+  function setStylePreset(index) {
+    const presets = [
+      { name: '简约白', backgroundColor: '#ffffff', textColor: '#374151', borderStyle: 'solid', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)' },
+      { name: '暖阳', backgroundColor: '#fff7ed', textColor: '#c2410c', borderStyle: 'solid', boxShadow: '0 4px 10px rgba(194, 65, 12, 0.1)' },
+      { name: '海洋', backgroundColor: '#f0f9ff', textColor: '#0369a1', borderStyle: 'solid', boxShadow: '0 4px 10px rgba(3, 105, 161, 0.1)' },
+      { name: '森林', backgroundColor: '#f0fdf4', textColor: '#166534', borderStyle: 'solid', boxShadow: '0 4px 10px rgba(22, 101, 52, 0.1)' },
+      { name: '晚霞', backgroundColor: '#fef2f2', textColor: '#b91c1c', borderStyle: 'solid', boxShadow: '0 4px 10px rgba(185, 28, 28, 0.1)' },
+      { name: '葡萄', backgroundColor: '#faf5ff', textColor: '#7e22ce', borderStyle: 'dashed', boxShadow: '0 4px 10px rgba(126, 34, 206, 0.1)' },
+      { name: '樱花', backgroundColor: '#fdf4ff', textColor: '#a21caf', borderStyle: 'dashed', boxShadow: '0 4px 10px rgba(162, 28, 175, 0.1)' },
+      { name: '清新', backgroundColor: '#ecfeff', textColor: '#0e7490', borderStyle: 'dotted', boxShadow: '0 4px 10px rgba(14, 116, 144, 0.1)' },
+      { name: '灰调', backgroundColor: '#f8fafc', textColor: '#334155', borderStyle: 'none', boxShadow: '0 4px 6px rgba(51, 65, 85, 0.05)' },
+      { name: '日落', backgroundColor: '#fefce8', textColor: '#854d0e', borderStyle: 'solid', boxShadow: '0 4px 10px rgba(133, 77, 14, 0.1)' },
+      { name: '宁静', backgroundColor: '#f5f5f5', textColor: '#262626', borderStyle: 'solid', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.03)' },
+      { name: '玫瑰', backgroundColor: '#fff1f2', textColor: '#be123c', borderStyle: 'solid', boxShadow: '0 4px 10px rgba(190, 18, 60, 0.1)' }
+    ];
+    
+    if (index < 0 || index >= presets.length) return;
+    
+    const preset = presets[index];
+    
+    // 更新隐藏字段
+    const bgColorField = document.getElementById('background-color');
+    const textColorField = document.getElementById('text-color');
+    const borderStyleField = document.getElementById('border-style');
+    
+    if (bgColorField) bgColorField.value = preset.backgroundColor;
+    if (textColorField) textColorField.value = preset.textColor;
+    if (borderStyleField) borderStyleField.value = preset.borderStyle;
+    
+    // 更新样式预设选中状态
+    const presetButtons = document.querySelectorAll('.style-preset');
+    presetButtons.forEach((button, i) => {
+      if (i === index) {
+        button.classList.add('ring-2', 'ring-offset-2', 'ring-blue-500');
+      } else {
+        button.classList.remove('ring-2', 'ring-offset-2', 'ring-blue-500');
+      }
+    });
+    
+    // 更新预览
+    updatePreview();
+  }
+  
+  // 获取QQ头像
+  function updateQQAvatar() {
+    const qqEmailEl = document.getElementById('qq-email');
+    const avatarPreview = document.getElementById('avatar-preview');
+    
+    if (!qqEmailEl || !avatarPreview) return;
+    
+    const qqEmail = qqEmailEl.value.trim();
+    
+    // 检查是否是有效的QQ邮箱格式
+    if (/^[0-9]+@qq\.com$/.test(qqEmail)) {
+      const qqNumber = qqEmail.split('@')[0];
+      const avatarUrl = `https://q1.qlogo.cn/g?b=qq&nk=${qqNumber}&s=100`;
+      
+      // 更新头像预览
+      avatarPreview.innerHTML = `<img src="${avatarUrl}" alt="QQ头像" class="w-full h-full object-cover rounded-full" loading="lazy" onerror="this.parentNode.innerHTML=''" />`;
+    } else {
+      // 清除头像预览
+      avatarPreview.innerHTML = '';
+    }
+  }
+  
+  // 表单验证
+  function validateForm() {
+    const nickname = document.getElementById('nickname')?.value.trim();
+    const content = document.getElementById('content')?.value.trim();
+    const errorMessageText = document.getElementById('error-message-text');
+    const errorMessage = document.getElementById('form-error-message');
+    
+    // 创建IP哈希
+    const ipHash = 'anon-' + Math.random().toString(36).substring(2, 12);
+    const ipHashField = document.getElementById('ip-hash');
+    if (ipHashField) ipHashField.value = ipHash;
+    
+    // 验证昵称
+    if (!nickname) {
+      if (errorMessageText) errorMessageText.textContent = '请输入昵称';
+      if (errorMessage) errorMessage.classList.remove('hidden');
+      return false;
+    }
+    
+    // 验证留言内容
+    if (!content) {
+      if (errorMessageText) errorMessageText.textContent = '请输入留言内容';
+      if (errorMessage) errorMessage.classList.remove('hidden');
+      return false;
+    }
+    
+    // 验证通过，隐藏错误信息
+    if (errorMessage) errorMessage.classList.add('hidden');
+    return true;
+  }
+  
+  // 显示加载状态
+  function showLoadingState() {
+    const loadingMessage = document.getElementById('form-loading-message');
+    const successMessage = document.getElementById('form-success-message');
+    const errorMessage = document.getElementById('form-error-message');
+    const submitButton = document.getElementById('submit-button');
+    
+    if (loadingMessage) loadingMessage.classList.remove('hidden');
+    if (successMessage) successMessage.classList.add('hidden');
+    if (errorMessage) errorMessage.classList.add('hidden');
+    if (submitButton) submitButton.disabled = true;
+  }
+  
+  // 初始化
+  document.addEventListener('DOMContentLoaded', function() {
+    // 初始化表单内容长度计数
+    updateContentLength();
+    
+    // 设置默认样式
+    setStylePreset(0);
+    
+    // 表单提交处理
+    const form = document.getElementById('guestbook-form');
+    if (form) {
+      form.addEventListener('submit', function(event) {
+        if (!validateForm()) {
+          event.preventDefault();
+          return false;
+        }
+        
+        // 显示加载状态
+        showLoadingState();
+        
+        // 这里不阻止默认行为，让表单提交到后端API
+        return true;
+      });
+    }
+    
+    // 点击页面其他位置关闭表情选择器
+    document.addEventListener('click', function(event) {
+      const emojiPicker = document.getElementById('emoji-picker');
+      const emojiButton = document.getElementById('emoji-button');
+      
+      if (emojiPicker && !emojiPicker.classList.contains('hidden') && 
+          !emojiPicker.contains(event.target) && 
+          emojiButton && !emojiButton.contains(event.target)) {
+        emojiPicker.classList.add('hidden');
+      }
+    });
+  });
+</script>
+
+<style>
+  /* 隐藏横向滚动条但保留功能 */
+  .hide-scrollbar {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;  /* Chrome, Safari, Opera */
+  }
+</style> 

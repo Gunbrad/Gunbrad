@@ -1,0 +1,461 @@
+---
+import { getAvatarFromEmail } from '../../utils/qq-avatar';
+
+// 格式化日期
+function formatDate(dateString) {
+  const date = new Date(dateString);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+---
+
+<div class="guestbook-wall bg-white/90 backdrop-blur-sm rounded-xl shadow-sm">
+  <div class="relative pt-6">
+    <h1 class="text-3xl font-bold mb-8 text-center">留言墙</h1>
+    
+    <div id="guestbook-messages" class="messages-container">
+      <!-- 留言将通过 JavaScript 动态加载 -->
+      <div class="loading-indicator text-center py-10 w-full flex items-center justify-center">
+        <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+        <p class="mt-0 ml-3 text-gray-600">正在加载留言...</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .messages-container {
+    display: flex;
+    flex-direction: column; /* 改为纵向布局 */
+    gap: 20px; /* 留言之间的垂直间距 */
+    padding: 24px 36px;
+    height: 500px; /* 固定高度 */
+    overflow-y: auto; /* 垂直滚动 */
+    scroll-behavior: smooth;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
+  }
+  
+  .messages-container::-webkit-scrollbar {
+    width: 8px; /* 滚动条宽度 */
+  }
+  
+  .messages-container::-webkit-scrollbar-track {
+    background: rgba(243, 244, 246, 0.5);
+    border-radius: 4px;
+  }
+  
+  .messages-container::-webkit-scrollbar-thumb {
+    background-color: rgba(156, 163, 175, 0.5);
+    border-radius: 4px;
+  }
+  
+  .message-row {
+    width: 100%; /* 占据整行 */
+  }
+  
+  .guestbook-message {
+    transition: all 0.3s ease;
+    border-radius: 1rem;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+    min-height: 160px; /* 最小高度 */
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    width: 100%; /* 宽度100% */
+    border-left: 3px solid transparent;
+  }
+  
+  .guestbook-message:hover {
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+    border-left: 3px solid #3b82f6;
+    transform: translateX(5px);
+    background-image: linear-gradient(to right, rgba(59, 130, 246, 0.05), transparent);
+  }
+  
+  .message-content {
+    word-break: break-word;
+    white-space: pre-wrap;
+    flex-grow: 1;
+    font-size: 1.125rem;
+    line-height: 1.7;
+    padding-top: 10px;
+    overflow-y: auto;
+    max-height: 200px; /* 内容区域最大高度 */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(156, 163, 175, 0.3) transparent;
+  }
+  
+  .message-content::-webkit-scrollbar {
+    width: 4px;
+  }
+  
+  .message-content::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  .message-content::-webkit-scrollbar-thumb {
+    background-color: rgba(156, 163, 175, 0.3);
+    border-radius: 4px;
+  }
+  
+  @media (max-width: 768px) {
+    .messages-container {
+      height: 450px;
+      padding: 12px 18px;
+    }
+    
+    .guestbook-message {
+      min-height: 140px;
+    }
+  }
+</style>
+
+<script is:inline>
+  // 避免重复声明变量
+  if (typeof window.guestbookInitialized === 'undefined') {
+    // 格式化日期函数
+    window.formatDate = function(dateString) {
+      const date = new Date(dateString);
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+
+    // 使用默认留言，确保在加载失败时仍有内容显示
+    window.defaultMessages = [
+      {
+        id: 'default-1',
+        nickname: '示例用户',
+        content: '这是一条示例留言，当没有真实留言时显示。留言可以很长，这样可以测试留言框的大小和布局效果。希望这个留言墙能够收集到更多美好的留言！',
+        created_at: new Date().toISOString(),
+        background_color: '#f0f9ff',
+        text_color: '#0369a1',
+        border_style: 'solid'
+      },
+      {
+        id: 'default-2',
+        nickname: '示例用户2',
+        content: '欢迎使用留言墙，可以向博主分享你的想法、建议或者仅仅是打个招呼。期待看到你的留言！',
+        created_at: new Date().toISOString(),
+        background_color: '#fff7ed',
+        text_color: '#c2410c',
+        border_style: 'solid'
+      },
+      {
+        id: 'default-3',
+        nickname: '示例用户3',
+        content: '留言墙支持鼠标滚轮滑动，体验更加流畅。这是一个很好的交流平台，可以与博主和其他访客进行互动。如果你有什么想说的，请点击下方按钮留言！',
+        created_at: new Date().toISOString(),
+        background_color: '#f0fdf4',
+        text_color: '#166534',
+        border_style: 'solid'
+      }
+    ];
+    
+    // 立即执行的函数，不等待DOMContentLoaded
+    (function() {
+      console.log('留言墙脚本立即执行');
+      let currentPage = 0;
+      let hasMore = true;
+      let isLoading = false;
+      let loadAttempts = 0;
+      const MAX_RETRIES = 3;
+      
+      // 全局刷新函数
+      window.refreshMessages = function() {
+        console.log('刷新留言列表');
+        // 清空现有留言
+        const container = document.getElementById('guestbook-messages');
+        if (container) {
+          container.innerHTML = `
+            <div class="loading-indicator text-center py-10 w-full flex items-center justify-center">
+              <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+              <p class="mt-0 ml-3 text-gray-600">正在加载留言...</p>
+            </div>
+          `;
+        }
+        // 重置状态
+        currentPage = 0;
+        hasMore = true;
+        isLoading = false;
+        loadAttempts = 0;
+        // 重新加载第一页
+        fetchMessages(0);
+      };
+      
+      // 简化错误处理
+      function handleError(message) {
+        const container = document.getElementById('guestbook-messages');
+        if (!container) return;
+        
+        // 隐藏加载指示器
+        const loadingIndicator = document.querySelector('.loading-indicator');
+        if (loadingIndicator) loadingIndicator.classList.add('hidden');
+        
+        // 显示空状态消息
+        container.innerHTML = `
+          <div class="text-center py-10 w-full flex flex-col items-center justify-center">
+            <p class="text-gray-600 mb-4">${message}</p>
+            <button id="retry-button" class="px-4 py-2 bg-blue-600 text-white rounded-md">
+              重试加载
+            </button>
+          </div>
+        `;
+        
+        // 添加重试按钮
+        const retryButton = document.getElementById('retry-button');
+        if (retryButton) {
+          retryButton.addEventListener('click', function() {
+            // 重置加载状态
+            container.innerHTML = `
+              <div class="loading-indicator text-center py-10 w-full flex items-center justify-center">
+                <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+                <p class="mt-0 ml-3 text-gray-600">正在加载留言...</p>
+              </div>
+            `;
+            loadAttempts = 0;
+            fetchMessages(0);
+          });
+        }
+      }
+      
+      // 获取留言数据
+      async function fetchMessages(page = 0) {
+        if (isLoading) return;
+        
+        isLoading = true;
+        loadAttempts++;
+        console.log(`尝试加载留言 (${loadAttempts}/${MAX_RETRIES}): 页码 ${page}`);
+        
+        try {
+          const response = await fetch(`/api/guestbook/get-messages?page=${page}&pageSize=20`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              'Cache-Control': 'no-cache'
+            }
+          });
+          
+          // 记录响应状态，帮助排查问题
+          console.log('API响应状态:', response.status);
+          
+          if (!response.ok) {
+            console.error(`获取留言失败: HTTP ${response.status}`);
+            
+            // 尝试读取错误响应内容
+            try {
+              const errorText = await response.text();
+              console.log('错误响应内容:', errorText);
+              
+              // 尝试解析JSON
+              try {
+                const errorData = JSON.parse(errorText);
+                console.log('API响应数据:', errorData);
+              } catch (parseError) {
+                console.error('解析错误响应失败:', parseError);
+              }
+            } catch (readError) {
+              console.error('读取错误响应失败:', readError);
+            }
+            
+            if (loadAttempts >= MAX_RETRIES) {
+              // 如果重试次数用完，显示默认留言
+              renderMessages(window.defaultMessages);
+              handleError('加载失败，请刷新页面重试');
+            } else {
+              // 延迟重试
+              setTimeout(() => {
+                isLoading = false;
+                fetchMessages(page);
+              }, 1000);
+            }
+            return;
+          }
+          
+          // 尝试解析响应数据
+          let result;
+          try {
+            const responseText = await response.text();
+            console.log('API响应数据:', responseText);
+            result = JSON.parse(responseText);
+          } catch (parseError) {
+            console.error('解析响应数据失败:', parseError);
+            if (loadAttempts >= MAX_RETRIES) {
+              renderMessages(window.defaultMessages);
+              handleError('解析响应失败，请刷新页面重试');
+            } else {
+              setTimeout(() => {
+                isLoading = false;
+                fetchMessages(page);
+              }, 1000);
+            }
+            return;
+          }
+          
+          console.log('获取留言结果:', result.success ? '成功' : '失败', result);
+          
+          if (result.success) {
+            // 更新分页状态
+            hasMore = result.pagination.hasMore;
+            currentPage = result.pagination.page;
+            
+            // 如果有更多数据，自动加载
+            if (hasMore && page === 0) {
+              setTimeout(() => {
+                fetchMessages(currentPage + 1);
+              }, 100);
+            }
+            
+            // 移除加载指示器
+            const loadingIndicator = document.querySelector('.loading-indicator');
+            if (loadingIndicator) loadingIndicator.remove();
+            
+            // 渲染留言
+            const messages = result.data || [];
+            if (messages.length > 0) {
+              renderMessages(messages, page > 0);
+            } else if (page === 0) {
+              // 第一页没有数据，显示空状态
+              handleError('暂无留言，来留下第一条吧！');
+            }
+          } else {
+            console.error('获取留言失败:', result.error);
+            if (loadAttempts >= MAX_RETRIES) {
+              handleError('加载留言失败，请稍后重试');
+            } else {
+              // 延迟重试
+              setTimeout(() => {
+                isLoading = false;
+                fetchMessages(page);
+              }, 1000);
+            }
+          }
+        } catch (error) {
+          console.error('获取留言异常:', error);
+          if (loadAttempts >= MAX_RETRIES) {
+            handleError('连接服务器失败，请检查网络连接');
+          } else {
+            // 延迟重试
+            setTimeout(() => {
+              isLoading = false;
+              fetchMessages(page);
+            }, 1000);
+          }
+        } finally {
+          isLoading = false;
+        }
+      }
+      
+      // 渲染留言
+      function renderMessages(messages, append = false) {
+        const container = document.getElementById('guestbook-messages');
+        if (!container) return;
+        
+        console.log(`渲染${messages.length}条留言, 追加模式:`, append);
+        
+        // 如果不是追加模式且没有数据，显示无数据提示
+        if (!append && messages.length === 0) {
+          container.innerHTML = `
+            <div class="text-center py-10 w-full flex items-center justify-center">
+              <p class="text-gray-500">暂无留言，快来留下第一条吧！</p>
+            </div>
+          `;
+          return;
+        }
+        
+        // 如果是首次加载且有数据，清空容器
+        if (!append) {
+          container.innerHTML = '';
+        }
+        
+        // 处理留言（单列瀑布流）
+        messages.forEach(message => {
+          // 创建一个新的行
+          const rowElement = document.createElement('div');
+          rowElement.className = 'message-row';
+          
+          // 创建留言元素
+          const messageElement = createMessageElement(message);
+          rowElement.appendChild(messageElement);
+          
+          // 将行添加到容器
+          container.appendChild(rowElement);
+        });
+      }
+      
+      // 创建单个留言元素
+      function createMessageElement(message) {
+        // 创建留言元素
+        const messageElement = document.createElement('div');
+        messageElement.className = 'guestbook-message card-base shadow-md';
+        messageElement.style.boxSizing = 'border-box'; // 确保边框计算正确
+        
+        // 构建头像 URL
+        let avatarUrl = 'https://www.gravatar.com/avatar/?d=mp&s=40'; // 默认头像
+        if (message.qq_email) {
+          const qqNumber = message.qq_email.split('@')[0];
+          avatarUrl = `https://q1.qlogo.cn/g?b=qq&nk=${qqNumber}&s=100`;
+        }
+        
+        // 设置留言样式
+        messageElement.style.backgroundColor = message.background_color || '#f9fafb';
+        messageElement.style.color = message.text_color || '#374151';
+        messageElement.style.borderStyle = message.border_style || 'solid';
+        
+        // 准备位置信息显示
+        const locationDisplay = message.location ? 
+          `<span class="text-xs opacity-70 ml-1">· ${message.location}</span>` : '';
+        
+        // 设置留言内容，头像和昵称变小
+        messageElement.innerHTML = `
+          <div class="p-6 rounded-lg h-full flex flex-col">
+            <div class="flex items-center gap-3 mb-4">
+              <div class="w-8 h-8 rounded-full overflow-hidden flex-shrink-0 shadow-sm">
+                <img src="${avatarUrl}" alt="${message.nickname}" class="w-full h-full object-cover" loading="lazy" onerror="this.src='https://www.gravatar.com/avatar/?d=mp&s=40'">
+              </div>
+              <div>
+                <div class="font-medium text-base flex items-center flex-wrap">
+                  ${message.nickname}
+                  ${locationDisplay}
+                </div>
+                <div class="text-xs opacity-70">${window.formatDate(message.created_at)}</div>
+              </div>
+            </div>
+            <div class="message-content pt-2">${message.content}</div>
+          </div>
+        `;
+        
+        return messageElement;
+      }
+      
+      // 当DOM已加载时，执行初始化
+      function init() {
+        console.log('留言墙初始化');
+        // 首次加载留言
+        fetchMessages();
+      }
+      
+      // 确保在DOM准备好后初始化
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+      } else {
+        // 如果DOM已经加载完成，立即初始化
+        init();
+      }
+      
+      // 标记已初始化
+      window.guestbookInitialized = true;
+    })();
+  } else {
+    // 如果已经初始化过，只需刷新消息
+    console.log('留言墙已初始化，刷新消息');
+    if (typeof window.refreshMessages === 'function') {
+      window.refreshMessages();
+    }
+  }
+</script>

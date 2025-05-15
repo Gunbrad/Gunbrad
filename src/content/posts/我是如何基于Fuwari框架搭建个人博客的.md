@@ -2,7 +2,7 @@
 title: 我是如何基于Fuwari框架搭建个人博客的
 published: 2025-05-12
 description: ''
-image: ''
+image: './assets/2025-05-12-21-43-17-image.png'
 tags: [教程,记录]
 category: '教程'
 draft: false 

@@ -2,7 +2,7 @@
 title: 使用Cloudflare自定义邮箱白嫖cursor
 published: 2025-05-13
 description: ''
-image: ''
+image: 'assets/images/2025-05-13-12-58-47-image.png'
 tags: [教程]
 category: '教程'
 draft: false 

@@ -22,7 +22,12 @@ import { remarkReadingTime } from "./src/plugins/remark-reading-time.mjs";
 export default defineConfig({
 	site: "https://gunbrad.xyz/",
 	base: "/",
-	trailingSlash: "always",
+	trailingSlash: "ignore",
+	output: "static",
+	prefetch: {
+		prefetchAll: true,
+		defaultStrategy: 'hover'
+	},
 	integrations: [
 		tailwind({
 			nesting: true,
