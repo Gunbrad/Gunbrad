@@ -407,10 +407,6 @@ function formatDate(dateString) {
         messageElement.style.color = message.text_color || '#374151';
         messageElement.style.borderStyle = message.border_style || 'solid';
         
-        // 准备位置信息显示
-        const locationDisplay = message.location ? 
-          `<span class="text-xs opacity-70 ml-1">· ${message.location}</span>` : '';
-        
         // 设置留言内容，头像和昵称变小
         messageElement.innerHTML = `
           <div class="p-6 rounded-lg h-full flex flex-col">
@@ -419,10 +415,7 @@ function formatDate(dateString) {
                 <img src="${avatarUrl}" alt="${message.nickname}" class="w-full h-full object-cover" loading="lazy" onerror="this.src='https://www.gravatar.com/avatar/?d=mp&s=40'">
               </div>
               <div>
-                <div class="font-medium text-base flex items-center flex-wrap">
-                  ${message.nickname}
-                  ${locationDisplay}
-                </div>
+                <div class="font-medium text-base">${message.nickname}</div>
                 <div class="text-xs opacity-70">${window.formatDate(message.created_at)}</div>
               </div>
             </div>
