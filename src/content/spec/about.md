@@ -15,3 +15,5 @@
 - 教会我做博客的学长：[二叉树树的博客](https://afo.im/)
 
 - 在规划上帮过我的学长：[千千的博客](https://sal-qianqian.icu/)
+
+- 广西大学的学姐：[苏晓晴的博客](https://www.toubiec.cn/)

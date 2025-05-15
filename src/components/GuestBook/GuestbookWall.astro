@@ -232,7 +232,57 @@ function formatDate(dateString) {
         loadAttempts++;
         console.log(`尝试加载留言 (${loadAttempts}/${MAX_RETRIES}): 页码 ${page}`);
         
+        // 首先尝试从Supabase直接获取数据
         try {
+          // 直接从Supabase获取实时数据 - 无论在哪个环境
+          console.log('尝试从Supabase直接获取数据...');
+          
+          const supabaseResponse = await fetch('https://phbwtexlsszkeotrrmws.supabase.co/rest/v1/guestbook_messages?select=*&order=created_at.desc&limit=20', {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBoYnd0ZXhsc3N6a2VvdHJybXdzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDcyMDc3MjUsImV4cCI6MjA2Mjc4MzcyNX0.D7Tt-qL0wZRqHKpR3fOUjse4sp_Z4ixTFBTd_Y0IZvw',
+              'Prefer': 'return=representation'
+            }
+          });
+          
+          if (supabaseResponse.ok) {
+            console.log('Supabase请求成功');
+            const supabaseData = await supabaseResponse.json();
+            console.log('Supabase返回数据:', supabaseData);
+            
+            if (Array.isArray(supabaseData) && supabaseData.length > 0) {
+              // 处理数据确保格式一致
+              const processedData = supabaseData.map(message => ({
+                id: message.id,
+                nickname: message.nickname || '匿名',
+                content: message.content || '',
+                created_at: message.created_at,
+                qq_email: message.qq_email || '',
+                background_color: message.background_color || '#f9fafb',
+                text_color: message.text_color || '#374151',
+                border_style: message.border_style || 'solid'
+              }));
+              
+              // 使用从Supabase直接获取的实时数据
+              const loadingIndicator = document.querySelector('.loading-indicator');
+              if (loadingIndicator) loadingIndicator.remove();
+              renderMessages(processedData);
+              isLoading = false;
+              return;
+            } else {
+              console.log('Supabase返回空数据，使用默认留言');
+            }
+          } else {
+            console.error('Supabase响应异常:', supabaseResponse.status, supabaseResponse.statusText);
+          }
+        } catch (supabaseError) {
+          console.error('直接从Supabase获取数据失败:', supabaseError);
+        }
+        
+        // 如果Supabase请求失败，回退到静态API
+        try {
+          // 在静态构建时，这会请求我们的静态API端点
           const response = await fetch(`/api/guestbook/get-messages?page=${page}&pageSize=20`, {
             method: 'GET',
             headers: {
@@ -247,33 +297,9 @@ function formatDate(dateString) {
           if (!response.ok) {
             console.error(`获取留言失败: HTTP ${response.status}`);
             
-            // 尝试读取错误响应内容
-            try {
-              const errorText = await response.text();
-              console.log('错误响应内容:', errorText);
-              
-              // 尝试解析JSON
-              try {
-                const errorData = JSON.parse(errorText);
-                console.log('API响应数据:', errorData);
-              } catch (parseError) {
-                console.error('解析错误响应失败:', parseError);
-              }
-            } catch (readError) {
-              console.error('读取错误响应失败:', readError);
-            }
-            
-            if (loadAttempts >= MAX_RETRIES) {
-              // 如果重试次数用完，显示默认留言
-              renderMessages(window.defaultMessages);
-              handleError('加载失败，请刷新页面重试');
-            } else {
-              // 延迟重试
-              setTimeout(() => {
-                isLoading = false;
-                fetchMessages(page);
-              }, 1000);
-            }
+            // 当API请求失败时，使用默认数据
+            renderMessages(window.defaultMessages);
+            isLoading = false;
             return;
           }
           
@@ -285,15 +311,9 @@ function formatDate(dateString) {
             result = JSON.parse(responseText);
           } catch (parseError) {
             console.error('解析响应数据失败:', parseError);
-            if (loadAttempts >= MAX_RETRIES) {
-              renderMessages(window.defaultMessages);
-              handleError('解析响应失败，请刷新页面重试');
-            } else {
-              setTimeout(() => {
-                isLoading = false;
-                fetchMessages(page);
-              }, 1000);
-            }
+            // 使用默认留言
+            renderMessages(window.defaultMessages);
+            isLoading = false;
             return;
           }
           
@@ -325,27 +345,13 @@ function formatDate(dateString) {
             }
           } else {
             console.error('获取留言失败:', result.error);
-            if (loadAttempts >= MAX_RETRIES) {
-              handleError('加载留言失败，请稍后重试');
-            } else {
-              // 延迟重试
-              setTimeout(() => {
-                isLoading = false;
-                fetchMessages(page);
-              }, 1000);
-            }
+            // 使用默认留言
+            renderMessages(window.defaultMessages);
           }
         } catch (error) {
           console.error('获取留言异常:', error);
-          if (loadAttempts >= MAX_RETRIES) {
-            handleError('连接服务器失败，请检查网络连接');
-          } else {
-            // 延迟重试
-            setTimeout(() => {
-              isLoading = false;
-              fetchMessages(page);
-            }, 1000);
-          }
+          // 使用默认留言
+          renderMessages(window.defaultMessages);
         } finally {
           isLoading = false;
         }

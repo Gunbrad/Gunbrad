@@ -59,13 +59,11 @@ const emojiCategories = [
     </div>
   </div>
   
-  <!-- 直接使用表单提交到服务器 -->
+  <!-- 使用客户端JavaScript提交表单 -->
   <form 
     id="guestbook-form" 
-    class="space-y-4" 
-    action="/api/guestbook/submit-simple" 
-    method="POST"
-    onsubmit="showLoadingState(); return validateForm();"
+    class="space-y-4"
+    onsubmit="handleFormSubmit(event); return false;"
   >
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
       <!-- 昵称 -->
@@ -299,17 +297,17 @@ const emojiCategories = [
     const emojis = categoryEmojis[category] || categoryEmojis['常用'];
     
     // 更新表情容器
-    emojiContainer.innerHTML = '';
-    emojis.forEach(emoji => {
-      const button = document.createElement('button');
-      button.type = 'button';
-      button.className = 'emoji-btn w-8 h-8 text-xl flex items-center justify-center hover:bg-blue-50 rounded-md transition-colors';
-      button.textContent = emoji;
+      emojiContainer.innerHTML = '';
+      emojis.forEach(emoji => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'emoji-btn w-8 h-8 text-xl flex items-center justify-center hover:bg-blue-50 rounded-md transition-colors';
+        button.textContent = emoji;
       button.onclick = function() {
         insertEmoji(emoji);
       };
-      emojiContainer.appendChild(button);
-    });
+        emojiContainer.appendChild(button);
+      });
   }
   
   // 插入表情到留言内容
@@ -368,7 +366,7 @@ const emojiCategories = [
     presetButtons.forEach((button, i) => {
       if (i === index) {
         button.classList.add('ring-2', 'ring-offset-2', 'ring-blue-500');
-      } else {
+    } else {
         button.classList.remove('ring-2', 'ring-offset-2', 'ring-blue-500');
       }
     });
@@ -443,6 +441,104 @@ const emojiCategories = [
     if (submitButton) submitButton.disabled = true;
   }
   
+  // 隐藏加载状态
+  function hideLoadingState() {
+    const loadingMessage = document.getElementById('form-loading-message');
+    const submitButton = document.getElementById('submit-button');
+    
+    if (loadingMessage) loadingMessage.classList.add('hidden');
+    if (submitButton) submitButton.disabled = false;
+  }
+  
+  // 显示成功信息
+  function showSuccessMessage() {
+    const successMessage = document.getElementById('form-success-message');
+    if (successMessage) successMessage.classList.remove('hidden');
+    
+    // 5秒后自动关闭表单模态框
+    setTimeout(() => {
+      const formModal = document.getElementById('form-modal');
+      if (formModal) {
+        formModal.classList.add('hidden');
+        document.body.style.overflow = '';
+      }
+      
+      // 清空表单
+      const form = document.getElementById('guestbook-form');
+      if (form) form.reset();
+      
+      // 刷新留言列表
+            if (typeof window.refreshMessages === 'function') {
+              window.refreshMessages();
+      }
+    }, 2000);
+  }
+  
+  // 显示错误信息
+  function showErrorMessage(message) {
+    const errorMessage = document.getElementById('form-error-message');
+    const errorMessageText = document.getElementById('error-message-text');
+    
+    if (errorMessage) errorMessage.classList.remove('hidden');
+    if (errorMessageText) errorMessageText.textContent = message || '提交失败，请稍后重试';
+  }
+  
+  // 处理表单提交（客户端直接发送到Supabase）
+  async function handleFormSubmit(event) {
+    event.preventDefault();
+    
+    if (!validateForm()) {
+      return false;
+    }
+    
+    // 显示加载状态
+    showLoadingState();
+    
+    try {
+      // 获取表单数据
+      const form = document.getElementById('guestbook-form');
+      const formData = new FormData(form);
+      
+      // 转换为对象
+      const messageData = {
+        nickname: formData.get('nickname'),
+        content: formData.get('content'),
+        qq_email: formData.get('qq_email') || '',
+        background_color: formData.get('background_color') || '#ffffff',
+        text_color: formData.get('text_color') || '#374151',
+        border_style: formData.get('border_style') || 'solid',
+        ip_hash: formData.get('ip_hash') || `anon-${Date.now()}`,
+        created_at: new Date().toISOString()
+      };
+      
+      // 直接调用Supabase的客户端API
+      const response = await fetch('https://phbwtexlsszkeotrrmws.supabase.co/rest/v1/guestbook_messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBoYnd0ZXhsc3N6a2VvdHJybXdzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDcyMDc3MjUsImV4cCI6MjA2Mjc4MzcyNX0.D7Tt-qL0wZRqHKpR3fOUjse4sp_Z4ixTFBTd_Y0IZvw',
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify(messageData)
+      });
+      
+      if (response.ok) {
+        // 提交成功
+        hideLoadingState();
+        showSuccessMessage();
+      } else {
+        // 提交失败
+        console.error('提交留言失败:', response.status, response.statusText);
+        hideLoadingState();
+        showErrorMessage('提交失败，服务器响应异常');
+      }
+    } catch (error) {
+      console.error('提交留言异常:', error);
+      hideLoadingState();
+      showErrorMessage(error.message || '提交失败，请检查网络连接');
+    }
+  }
+  
   // 初始化
   document.addEventListener('DOMContentLoaded', function() {
     // 初始化表单内容长度计数
@@ -450,23 +546,6 @@ const emojiCategories = [
     
     // 设置默认样式
     setStylePreset(0);
-    
-    // 表单提交处理
-    const form = document.getElementById('guestbook-form');
-    if (form) {
-      form.addEventListener('submit', function(event) {
-        if (!validateForm()) {
-          event.preventDefault();
-          return false;
-        }
-        
-        // 显示加载状态
-        showLoadingState();
-        
-        // 这里不阻止默认行为，让表单提交到后端API
-        return true;
-      });
-    }
     
     // 点击页面其他位置关闭表情选择器
     document.addEventListener('click', function(event) {
