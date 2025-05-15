@@ -448,8 +448,8 @@ const emojiCategories = [
     
     if (loadingMessage) loadingMessage.classList.add('hidden');
     if (submitButton) submitButton.disabled = false;
-  }
-  
+      }
+      
   // 显示成功信息
   function showSuccessMessage() {
     const successMessage = document.getElementById('form-success-message');
@@ -499,6 +499,36 @@ const emojiCategories = [
       const form = document.getElementById('guestbook-form');
       const formData = new FormData(form);
       
+      // 获取用户地理位置
+      let locationInfo = '未知位置';
+      try {
+        const ipResponse = await fetch('https://api.ipify.org?format=json');
+        if (ipResponse.ok) {
+          const ipData = await ipResponse.json();
+          const ipAddress = ipData.ip;
+          
+          // 使用ip-api获取地理位置信息
+          const geoResponse = await fetch(`https://ip-api.com/json/${ipAddress}?lang=zh-CN&fields=status,message,country,regionName,city`);
+          if (geoResponse.ok) {
+            const geoData = await geoResponse.json();
+            if (geoData.status === 'success') {
+              // 只保留省市地区信息
+              const country = geoData.country || '';
+              const region = geoData.regionName || '';
+              const city = geoData.city || '';
+              
+              if (country === '中国') {
+                locationInfo = region + (city ? ' · ' + city : '');
+              } else {
+                locationInfo = country + (region ? ' · ' + region : '');
+              }
+            }
+          }
+        }
+      } catch (locationError) {
+        console.error('获取位置信息失败:', locationError);
+      }
+      
       // 转换为对象
       const messageData = {
         nickname: formData.get('nickname'),
@@ -508,7 +538,8 @@ const emojiCategories = [
         text_color: formData.get('text_color') || '#374151',
         border_style: formData.get('border_style') || 'solid',
         ip_hash: formData.get('ip_hash') || `anon-${Date.now()}`,
-        created_at: new Date().toISOString()
+        created_at: new Date().toISOString(),
+        location: locationInfo // 添加位置信息
       };
       
       // 直接调用Supabase的客户端API
@@ -538,7 +569,7 @@ const emojiCategories = [
       showErrorMessage(error.message || '提交失败，请检查网络连接');
     }
   }
-  
+
   // 初始化
   document.addEventListener('DOMContentLoaded', function() {
     // 初始化表单内容长度计数
@@ -556,7 +587,7 @@ const emojiCategories = [
           !emojiPicker.contains(event.target) && 
           emojiButton && !emojiButton.contains(event.target)) {
         emojiPicker.classList.add('hidden');
-      }
+  }
     });
   });
 </script>

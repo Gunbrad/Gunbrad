@@ -11,7 +11,8 @@ const defaultMessages = [
     background_color: '#f0f9ff',
     text_color: '#0369a1',
     border_style: 'solid',
-    qq_email: ''
+    qq_email: '',
+    location: '北京市'
   },
   {
     id: 'default-2',
@@ -21,7 +22,8 @@ const defaultMessages = [
     background_color: '#fff7ed',
     text_color: '#c2410c',
     border_style: 'solid',
-    qq_email: ''
+    qq_email: '',
+    location: '广东 · 深圳'
   },
   {
     id: 'default-3',
@@ -31,7 +33,8 @@ const defaultMessages = [
     background_color: '#f0fdf4',
     text_color: '#166534',
     border_style: 'solid',
-    qq_email: ''
+    qq_email: '',
+    location: '海外 · 美国'
   }
 ];
 
