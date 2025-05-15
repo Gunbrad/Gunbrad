@@ -39,14 +39,19 @@ const defaultMessages = [
 ];
 
 // 静态API响应
-export function GET() {
+export function GET({ url }) {
+  // 检查是否请求所有留言
+  const params = new URL(url).searchParams;
+  const requestAll = params.get('all') === 'true';
+  
+  // 始终返回所有留言
   return new Response(
     JSON.stringify({
       success: true,
       data: defaultMessages,
       pagination: {
         page: 0,
-        pageSize: 20,
+        pageSize: requestAll ? defaultMessages.length : 20,
         total: defaultMessages.length,
         hasMore: false
       }

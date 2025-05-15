@@ -184,11 +184,11 @@ function formatDate(dateString) {
         }
         // 重置状态
         currentPage = 0;
-        hasMore = true;
+        hasMore = false;
         isLoading = false;
         loadAttempts = 0;
-        // 重新加载第一页
-        fetchMessages(0);
+        // 重新加载所有留言
+        fetchMessages();
       };
       
       // 简化错误处理
@@ -222,7 +222,7 @@ function formatDate(dateString) {
               </div>
             `;
             loadAttempts = 0;
-            fetchMessages(0);
+            fetchMessages();
           });
         }
       }
@@ -233,14 +233,14 @@ function formatDate(dateString) {
         
         isLoading = true;
         loadAttempts++;
-        console.log(`尝试加载留言 (${loadAttempts}/${MAX_RETRIES}): 页码 ${page}`);
+        console.log(`尝试加载留言 (${loadAttempts}/${MAX_RETRIES})`);
         
         // 首先尝试从Supabase直接获取数据
         try {
           // 直接从Supabase获取实时数据 - 无论在哪个环境
-          console.log('尝试从Supabase直接获取数据...');
+          console.log('尝试从Supabase直接获取所有留言数据...');
           
-          const supabaseResponse = await fetch('https://phbwtexlsszkeotrrmws.supabase.co/rest/v1/guestbook_messages?select=*&order=created_at.desc&limit=20', {
+          const supabaseResponse = await fetch('https://phbwtexlsszkeotrrmws.supabase.co/rest/v1/guestbook_messages?select=*&order=created_at.desc', {
             method: 'GET',
             headers: {
               'Content-Type': 'application/json',
@@ -252,7 +252,7 @@ function formatDate(dateString) {
           if (supabaseResponse.ok) {
             console.log('Supabase请求成功');
             const supabaseData = await supabaseResponse.json();
-            console.log('Supabase返回数据:', supabaseData);
+            console.log(`Supabase返回数据: ${supabaseData.length}条留言`);
             
             if (Array.isArray(supabaseData) && supabaseData.length > 0) {
               // 处理数据确保格式一致
@@ -286,8 +286,8 @@ function formatDate(dateString) {
         
         // 如果Supabase请求失败，回退到静态API
         try {
-          // 在静态构建时，这会请求我们的静态API端点
-          const response = await fetch(`/api/guestbook/get-messages?page=${page}&pageSize=20`, {
+          // 在静态构建时，这会请求我们的静态API端点，不使用分页
+          const response = await fetch(`/api/guestbook/get-messages?all=true`, {
             method: 'GET',
             headers: {
               'Content-Type': 'application/json',
@@ -324,16 +324,9 @@ function formatDate(dateString) {
           console.log('获取留言结果:', result.success ? '成功' : '失败', result);
           
           if (result.success) {
-            // 更新分页状态
-            hasMore = result.pagination.hasMore;
-            currentPage = result.pagination.page;
-            
-            // 如果有更多数据，自动加载
-            if (hasMore && page === 0) {
-              setTimeout(() => {
-                fetchMessages(currentPage + 1);
-              }, 100);
-            }
+            // 不再需要处理分页
+            hasMore = false;
+            currentPage = 0;
             
             // 移除加载指示器
             const loadingIndicator = document.querySelector('.loading-indicator');
@@ -342,9 +335,9 @@ function formatDate(dateString) {
             // 渲染留言
             const messages = result.data || [];
             if (messages.length > 0) {
-              renderMessages(messages, page > 0);
-            } else if (page === 0) {
-              // 第一页没有数据，显示空状态
+              renderMessages(messages, false);
+            } else {
+              // 没有数据，显示空状态
               handleError('暂无留言，来留下第一条吧！');
             }
           } else {
