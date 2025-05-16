@@ -505,40 +505,37 @@ const emojiCategories = [
       const form = document.getElementById('guestbook-form');
       const formData = new FormData(form);
       
-      // 获取用户地理位置
+      // 获取用户地理位置和运营商
       let locationInfo = '未知位置';
+      let operatorInfo = '';
+      
       try {
-        // 直接使用ipinfo.io获取IP和地理位置信息
-        const geoResponse = await fetch('https://ipinfo.io/json', {
+        // 直接使用IPIP.net API获取位置信息（经过测试更准确且有运营商信息）
+        const ipipResponse = await fetch('https://myip.ipip.net', {
           headers: {
-            'Accept': 'application/json'
+            'Accept': 'text/html'
           }
         });
         
-        if (geoResponse.ok) {
-          const geoData = await geoResponse.json();
+        if (ipipResponse.ok) {
+          const text = await ipipResponse.text();
+          // 解析IPIP.net响应格式，例如：当前 IP：240e:388:6429:4900:2d00:da33:d52:a44f  来自于：中国 浙江 杭州 运营商：移动
+          console.log('IPIP.net响应:', text);
           
-          // 获取位置信息
-          const country = geoData.country || '';  // 国家代码
-          const region = geoData.region || '';    // 地区/省份
-          const city = geoData.city || '';        // 城市
-          
-          // 根据国家代码处理显示方式
-          if (country === 'CN') {
-            // 中国显示为：省份 · 城市
-            locationInfo = region + (city ? ' · ' + city : '');
-              } else {
-            // 国外显示为：国家 · 城市
-            const countryMap = {
-              'US': '美国', 'GB': '英国', 'JP': '日本', 'KR': '韩国', 
-              'CA': '加拿大', 'AU': '澳大利亚', 'DE': '德国', 'FR': '法国',
-              'RU': '俄罗斯', 'SG': '新加坡', 'MY': '马来西亚', 'TH': '泰国'
-            };
-            
-            const countryName = countryMap[country] || country;
-            locationInfo = '海外 · ' + (city ? city : countryName);
+          // 提取位置信息
+          const locationMatch = text.match(/来自于：([^运]+)/);
+          if (locationMatch && locationMatch[1]) {
+            locationInfo = locationMatch[1].trim().replace(/\s+/g, ' · ');
           }
-
+          
+          // 提取运营商信息
+          const operatorMatch = text.match(/运营商：(.+?)($|\s|\n)/);
+          if (operatorMatch && operatorMatch[1]) {
+            operatorInfo = operatorMatch[1].trim();
+          }
+          
+          console.log('提取的位置信息:', locationInfo);
+          console.log('提取的运营商信息:', operatorInfo);
         }
       } catch (locationError) {
         console.error('获取位置信息失败:', locationError);
@@ -554,7 +551,8 @@ const emojiCategories = [
         border_style: formData.get('border_style') || 'solid',
         ip_hash: formData.get('ip_hash') || `anon-${Date.now()}`,
         created_at: new Date().toISOString(),
-        location: locationInfo // 添加位置信息
+        location: locationInfo, // 添加位置信息
+        operator: operatorInfo // 添加运营商信息
       };
       
       // 直接调用Supabase的客户端API

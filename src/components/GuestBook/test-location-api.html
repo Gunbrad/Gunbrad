@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IPIP.net位置API测试工具</title>
+  <style>
+    body {
+      font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      line-height: 1.6;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+      color: #333;
+    }
+    .card {
+      border: 1px solid #eee;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+    .card h2 {
+      margin-top: 0;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 10px;
+      color: #444;
+    }
+    .result-item {
+      font-size: 18px;
+      margin: 15px 0;
+      color: #333;
+    }
+    .success {
+      color: #22c55e;
+      font-weight: bold;
+    }
+    .error {
+      color: #ef4444;
+      font-weight: bold;
+    }
+    button {
+      background-color: #3b82f6;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background-color 0.2s;
+    }
+    button:hover {
+      background-color: #2563eb;
+    }
+    .loading {
+      color: #6b7280;
+      font-style: italic;
+    }
+    pre {
+      background: #f7f7f7;
+      padding: 10px;
+      border-radius: 4px;
+      overflow: auto;
+      max-height: 200px;
+      font-size: 14px;
+    }
+    .result-container {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>IPIP.net位置API测试工具</h1>
+  
+  <div class="card">
+    <h2>测试说明</h2>
+    <p>此工具将测试IPIP.net的IP定位API，确认其能否正确获取用户地理位置和网络运营商信息。</p>
+    <p>IPIP.net API在之前的测试中表现最佳，提供了最准确的国内IP地址定位和运营商信息。</p>
+    <p>点击下方按钮开始测试。测试结果将显示在下方。</p>
+    <button id="start-test">开始测试</button>
+  </div>
+  
+  <div id="results" style="display: none;">
+    <div class="card">
+      <h2>IPIP.net API测试</h2>
+      <div id="ipip-result" class="result-container">
+        <div id="ipip-loading" class="loading">正在测试中...</div>
+        <div id="ipip-status" style="display: none;"></div>
+        <div id="ipip-location" class="result-item" style="display: none;"></div>
+        <div id="ipip-operator" class="result-item" style="display: none;"></div>
+        <div id="ipip-raw" style="display: none;">
+          <h3>原始响应数据：</h3>
+          <pre id="ipip-raw-data"></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    // 测试IPIP.net位置API函数
+    async function testIPIPAPI() {
+      console.log('开始测试IPIP.net位置API...');
+      document.getElementById('ipip-loading').style.display = 'block';
+      
+      // 测试结果
+      const result = {
+        success: false,
+        location: '',
+        operator: '',
+        raw: null
+      };
+
+      try {
+        const response = await fetch('https://myip.ipip.net', {
+          headers: {
+            'Accept': 'text/html'
+          }
+        });
+        
+        if (response.ok) {
+          const text = await response.text();
+          console.log('IPIP.net API响应:', text);
+          result.raw = text;
+          
+          // 提取位置信息
+          const locationMatch = text.match(/来自于：([^运]+)/);
+          if (locationMatch && locationMatch[1]) {
+            result.location = locationMatch[1].trim().replace(/\s+/g, ' · ');
+          }
+          
+          // 提取运营商信息
+          const operatorMatch = text.match(/运营商：(.+?)($|\s|\n)/);
+          if (operatorMatch && operatorMatch[1]) {
+            result.operator = operatorMatch[1].trim();
+          }
+          
+          if (result.location) {
+            result.success = true;
+            console.log('IPIP.net位置API测试成功');
+            console.log('位置:', result.location);
+            console.log('运营商:', result.operator);
+          } else {
+            result.success = false;
+            console.error('无法解析IPIP.net响应');
+          }
+        } else {
+          result.success = false;
+          console.error('IPIP.net API HTTP错误:', response.status);
+        }
+      } catch (error) {
+        result.success = false;
+        console.error('IPIP.net API异常:', error);
+      } finally {
+        document.getElementById('ipip-loading').style.display = 'none';
+        
+        // 更新UI
+        document.getElementById('ipip-status').style.display = 'block';
+        document.getElementById('ipip-status').textContent = result.success ? '✅ 测试成功' : '❌ 测试失败';
+        document.getElementById('ipip-status').className = result.success ? 'success' : 'error';
+        
+        if (result.success) {
+          if (result.location) {
+            document.getElementById('ipip-location').style.display = 'block';
+            document.getElementById('ipip-location').textContent = `地理位置: ${result.location}`;
+          }
+          
+          if (result.operator) {
+            document.getElementById('ipip-operator').style.display = 'block';
+            document.getElementById('ipip-operator').textContent = `网络运营商: ${result.operator}`;
+          }
+        }
+        
+        document.getElementById('ipip-raw').style.display = 'block';
+        document.getElementById('ipip-raw-data').textContent = result.raw || '无数据';
+      }
+      
+      return result;
+    }
+    
+    // 启动测试
+    document.getElementById('start-test').addEventListener('click', function() {
+      document.getElementById('results').style.display = 'block';
+      testIPIPAPI();
+    });
+  </script>
+</body>
+</html> 

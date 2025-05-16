@@ -265,7 +265,8 @@ function formatDate(dateString) {
                 background_color: message.background_color || '#f9fafb',
                 text_color: message.text_color || '#374151',
                 border_style: message.border_style || 'solid',
-                location: message.location || '未知位置'
+                location: message.location || '未知位置',
+                operator: message.operator || ''
               }));
               
               // 使用从Supabase直接获取的实时数据
@@ -410,6 +411,16 @@ function formatDate(dateString) {
         messageElement.style.color = message.text_color || '#374151';
         messageElement.style.borderStyle = message.border_style || 'solid';
         
+        // 构建位置和运营商信息
+        let locationDisplay = '';
+        if (message.location) {
+          locationDisplay += `<span class="flex items-center"><svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-0.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" /></svg>${message.location}</span>`;
+        }
+        
+        if (message.operator) {
+          locationDisplay += `<span class="flex items-center ml-2"><svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-0.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M2 5a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V5zm3.293 1.293a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 01-1.414-1.414L7.586 10 5.293 7.707a1 1 0 010-1.414zM11 12a1 1 0 100 2h3a1 1 0 100-2h-3z" /></svg>${message.operator}</span>`;
+        }
+        
         // 设置留言内容，头像和昵称变小
         messageElement.innerHTML = `
           <div class="p-6 rounded-lg h-full flex flex-col">
@@ -419,9 +430,9 @@ function formatDate(dateString) {
               </div>
               <div>
                 <div class="font-medium text-base">${message.nickname}</div>
-                <div class="flex text-xs opacity-70 gap-2">
+                <div class="flex text-xs opacity-70 gap-2 flex-wrap">
                   <span>${window.formatDate(message.created_at)}</span>
-                  ${message.location ? `<span class="flex items-center"><svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-0.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" /></svg>${message.location}</span>` : ''}
+                  ${locationDisplay}
                 </div>
               </div>
             </div>
