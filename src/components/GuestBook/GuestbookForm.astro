@@ -508,6 +508,7 @@ const emojiCategories = [
       // 获取用户地理位置和运营商
       let locationInfo = '未知位置';
       let operatorInfo = '';
+      let ipAddress = ''; // 声明IP地址变量
       
       try {
         // 直接使用IPIP.net API获取位置信息（经过测试更准确且有运营商信息）
@@ -534,8 +535,15 @@ const emojiCategories = [
             operatorInfo = operatorMatch[1].trim();
           }
           
+          // 提取IP地址
+          const ipMatch = text.match(/当前\s*IP：\s*([^\s]+)/);
+          if (ipMatch && ipMatch[1]) {
+            ipAddress = ipMatch[1].trim();
+          }
+          
           console.log('提取的位置信息:', locationInfo);
           console.log('提取的运营商信息:', operatorInfo);
+          console.log('提取的IP地址:', ipAddress);
         }
       } catch (locationError) {
         console.error('获取位置信息失败:', locationError);
@@ -552,7 +560,8 @@ const emojiCategories = [
         ip_hash: formData.get('ip_hash') || `anon-${Date.now()}`,
         created_at: new Date().toISOString(),
         location: locationInfo, // 添加位置信息
-        operator: operatorInfo // 添加运营商信息
+        operator: operatorInfo, // 添加运营商信息
+        ip: ipAddress || '' // 添加IP地址字段
       };
       
       // 直接调用Supabase的客户端API
