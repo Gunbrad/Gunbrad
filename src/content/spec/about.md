@@ -17,3 +17,5 @@
 - 在规划上帮过我的学长：[千千的博客](https://sal-qianqian.icu/)
 
 - 广西大学的学姐：[苏晓晴的博客](https://www.toubiec.cn/)
+
+- 梯子宇宙——选择你的英雄：[梯子](https://guatizi.com/)
