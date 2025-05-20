@@ -17,46 +17,46 @@ const config = profileConfig;
         overflow: visible !important;
     }
     
-    .qrcode-container {
+    /* 微信二维码样式 */
+    .wechat-icon {
         position: relative;
-        cursor: pointer;
     }
     
-    .qrcode {
+    /* 微信二维码容器 */
+    .wechat-qrcode {
         position: absolute;
-        bottom: -140px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 120px;
-        height: 120px;
-        opacity: 0;
-        visibility: hidden;
-        transition: all 0.3s ease;
-        z-index: 200; /* 使用更高的z-index确保在最上层 */
+        width: 130px;
+        height: 130px;
+        padding: 10px;
+        background-color: white;
         border-radius: 6px;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-        background-color: white;
-        padding: 5px;
-        pointer-events: none; /* 防止鼠标事件干扰悬停状态 */
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transform: scale(0.9);
+        transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s;
+        z-index: 99999;
     }
     
-    /* 二维码背景箭头 */
-    .qrcode::before {
+    /* 二维码图片 */
+    .wechat-qrcode img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+    
+    /* 二维码箭头 */
+    .wechat-qrcode::before {
         content: '';
         position: absolute;
-        top: -8px;
         left: 50%;
         transform: translateX(-50%) rotate(45deg);
-        width: 16px;
-        height: 16px;
+        width: 12px;
+        height: 12px;
         background-color: white;
-        z-index: -1;
-    }
-    
-    /* 悬停状态 */
-    .qrcode-container:hover .qrcode {
-        opacity: 1;
-        visibility: visible;
+        top: -6px;
+        box-shadow: -2px -2px 5px rgba(0, 0, 0, 0.1);
     }
 </style>
 
@@ -79,11 +79,8 @@ const config = profileConfig;
         <div class="flex gap-2 justify-center mb-1">
             {config.links.length > 1 && config.links.map(item => (
                 item.name === 'Wechat' ? (
-                    <div class="qrcode-container btn-regular rounded-lg h-10 w-10 flex items-center justify-center">
+                    <div id="wechat-icon" class="wechat-icon btn-regular rounded-lg h-10 w-10 flex items-center justify-center">
                         <Icon name={item.icon} class="text-[1.5rem]"></Icon>
-                        <div class="qrcode">
-                            <img src="/qrcode.png" alt="WeChat QR Code" class="w-full h-full rounded-md" />
-                        </div>
                     </div>
                 ) : (
                     <a rel="me" aria-label={item.name} href={item.url} target="_blank" class="btn-regular rounded-lg h-10 w-10 active:scale-90">
@@ -99,4 +96,72 @@ const config = profileConfig;
         </div>
     </div>
 </div>
+
+<!-- 二维码容器 -->
+<div id="wechat-qrcode" class="wechat-qrcode">
+    <img src="/qrcode.png" alt="微信二维码" />
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const wechatIcon = document.getElementById('wechat-icon');
+    const wechatQrcode = document.getElementById('wechat-qrcode');
+    
+    if (!wechatIcon || !wechatQrcode) return;
+    
+    // 计算二维码初始尺寸（用于后续计算），因为样式为visibility:hidden时无法获取实际尺寸
+    const qrcodeWidth = 130; // 与CSS中设置的宽度一致
+    const qrcodeHeight = 130; // 与CSS中设置的高度一致
+    
+    // 将二维码元素移动到body下，避免被其他元素的overflow属性影响
+    document.body.appendChild(wechatQrcode);
+    
+    // 显示二维码
+    wechatIcon.addEventListener('mouseenter', (e) => {
+      const rect = wechatIcon.getBoundingClientRect();
+      
+      // 将二维码水平居中于微信图标正下方
+      const iconCenter = rect.left + rect.width/2;
+      const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+      wechatQrcode.style.left = `${iconCenter + scrollLeft - qrcodeWidth/2}px`;
+      
+      // 将二维码定位在图标下方
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      wechatQrcode.style.top = `${rect.bottom + scrollTop + 15}px`;
+      wechatQrcode.style.transformOrigin = 'center top';
+      
+      // 显示二维码
+      wechatQrcode.style.opacity = '1';
+      wechatQrcode.style.visibility = 'visible';
+      wechatQrcode.style.transform = 'scale(1)';
+    });
+    
+    // 隐藏二维码
+    wechatIcon.addEventListener('mouseleave', () => {
+      wechatQrcode.style.opacity = '0';
+      wechatQrcode.style.visibility = 'hidden';
+      wechatQrcode.style.transform = 'scale(0.9)';
+    });
+    
+    // 窗口大小变化或滚动时，如果二维码可见，则更新位置
+    const updateQrcodePosition = () => {
+      if (wechatQrcode.style.visibility === 'visible') {
+        const rect = wechatIcon.getBoundingClientRect();
+        
+        // 更新水平位置 - 始终保持在图标正下方
+        const iconCenter = rect.left + rect.width/2;
+        const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+        wechatQrcode.style.left = `${iconCenter + scrollLeft - qrcodeWidth/2}px`;
+        
+        // 更新垂直位置 - 始终在图标下方
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        wechatQrcode.style.top = `${rect.bottom + scrollTop + 15}px`;
+      }
+    };
+    
+    // 监听窗口大小变化和滚动事件
+    window.addEventListener('resize', updateQrcodePosition);
+    window.addEventListener('scroll', updateQrcodePosition);
+  });
+</script>
 
