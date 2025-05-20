@@ -344,7 +344,7 @@ frozen-lockfile = false
    
    - 构建设置：
      
-     - 构建命令：`pnpm install --no-frozen-lockfile && pnpm run build`
+     - 构建命令：`pnpm build`
      
      - 构建输出目录：`dist`
        
