@@ -265,7 +265,7 @@ git remote set-url origin git@github.com:xxx/xxx // 替换为下图地址
 5. 将更改推送到GitHub仓库：
 
 ```bash
-git push origin main
+git push
 ```
 
 ## 四：配置Cloudflare Pages
