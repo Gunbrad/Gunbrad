@@ -7,6 +7,7 @@ tags: [教程,记录]
 category: '教程'
 draft: false 
 lang: ''
+
 ---
 
 # 
@@ -30,7 +31,7 @@ lang: ''
 
 1. **开发环境**：
    
-   - [Node.js](https://nodejs.org/) 18.x 或更高版本
+   - [Node.js](https://nodejs.org/) >18.x ,<= 22
    - [Git](https://git-scm.com/)
 
 2. **账号**：
@@ -317,7 +318,7 @@ frozen-lockfile = false
 
 ### 4.3 在Cloudflare Pages中创建项目
 
-1. 登录您的[Cloudflare Dashboard](https://dash.cloudflare.com/)
+1. 登录[Cloudflare Dashboard](https://dash.cloudflare.com/)
 
 2. 在左侧菜单中选择`"Workers 和 Pages"`
    
