@@ -18,6 +18,8 @@
 
 - 广西大学的学姐：[苏晓晴的博客](https://www.toubiec.cn/)
 
+- stevenlu的博客：[stevenlu的博客](https://stevenlu.top)
+
 - 梯子宇宙——选择你的英雄：[梯子](https://guatizi.com/)
 
-- stevenlu的博客：[stevenlu的博客](https://stevenlu.top/)
+- 渐变色参考：[渐变色参考](https://webgradients.com)

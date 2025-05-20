@@ -1,0 +1,78 @@
+<div id="gradient-background" class="fixed inset-0 w-full h-full z-[-1] opacity-30"></div>
+
+<script>
+  // 动态渐变背景实现
+  document.addEventListener('DOMContentLoaded', function() {
+    const gradientBackground = document.getElementById('gradient-background');
+    
+    // 定义柔和的颜色列表
+    const colors = [
+      { r: 135, g: 206, b: 235 }, // 天蓝色
+      { r: 144, g: 238, b: 144 }, // 淡绿色
+      { r: 230, g: 230, b: 250 }, // 薰衣草色
+      { r: 255, g: 182, b: 193 }, // 浅粉色
+      { r: 255, g: 218, b: 185 }, // 桃色
+      { r: 221, g: 160, b: 221 }, // 梅红色
+      { r: 176, g: 224, b: 230 }  // 粉蓝色
+    ];
+    
+    // 当前颜色索引
+    let currentIndex = 0;
+    let nextIndex = 1;
+    let progress = 0;
+    const transitionSpeed = 0.003; // 颜色变化速度
+    
+    function updateGradient() {
+      progress += transitionSpeed;
+      
+      if (progress >= 1) {
+        progress = 0;
+        currentIndex = nextIndex;
+        nextIndex = (nextIndex + 1) % colors.length;
+      }
+      
+      const currentColor = colors[currentIndex];
+      const nextColor = colors[nextIndex];
+      
+      // 计算两个颜色之间的过渡
+      const r = Math.floor(currentColor.r + (nextColor.r - currentColor.r) * progress);
+      const g = Math.floor(currentColor.g + (nextColor.g - currentColor.g) * progress);
+      const b = Math.floor(currentColor.b + (nextColor.b - currentColor.b) * progress);
+      
+      const color1 = `rgb(${r}, ${g}, ${b})`;
+      const color2 = `rgb(${r+20}, ${g+20}, ${b+20})`;
+      
+      // 根据暗模式调整背景颜色
+      const isDarkMode = document.documentElement.classList.contains('dark');
+      const opacity = isDarkMode ? '0.2' : '0.15';
+      
+      // 应用渐变
+      gradientBackground.style.background = `linear-gradient(45deg, ${color1}, ${color2})`;
+      gradientBackground.style.opacity = opacity;
+      
+      requestAnimationFrame(updateGradient);
+    }
+    
+    // 开始动画
+    requestAnimationFrame(updateGradient);
+    
+    // 监听主题变化以调整背景透明度
+    const observer = new MutationObserver(function(mutations) {
+      mutations.forEach(function(mutation) {
+        if (mutation.attributeName === 'class') {
+          const isDarkMode = document.documentElement.classList.contains('dark');
+          gradientBackground.style.opacity = isDarkMode ? '0.2' : '0.15';
+        }
+      });
+    });
+    
+    observer.observe(document.documentElement, { attributes: true });
+  });
+</script>
+
+<style>
+  #gradient-background {
+    transition: opacity 0.5s ease;
+    pointer-events: none;
+  }
+</style> 
