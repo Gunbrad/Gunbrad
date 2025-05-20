@@ -5,22 +5,22 @@
   document.addEventListener('DOMContentLoaded', function() {
     const gradientBackground = document.getElementById('gradient-background');
     
-    // 定义柔和的颜色列表
+    // 定义更明亮但有层次感的颜色列表
     const colors = [
-      { r: 135, g: 206, b: 235 }, // 天蓝色
-      { r: 144, g: 238, b: 144 }, // 淡绿色
-      { r: 230, g: 230, b: 250 }, // 薰衣草色
-      { r: 255, g: 182, b: 193 }, // 浅粉色
-      { r: 255, g: 218, b: 185 }, // 桃色
-      { r: 221, g: 160, b: 221 }, // 梅红色
-      { r: 176, g: 224, b: 230 }  // 粉蓝色
+      { r: 120, g: 180, b: 245 },  // 亮天蓝色
+      { r: 130, g: 210, b: 155 },  // 明亮青绿
+      { r: 180, g: 180, b: 240 },  // 亮薰衣草色
+      { r: 245, g: 170, b: 190 },  // 亮珊瑚色
+      { r: 250, g: 200, b: 160 },  // 亮杏色
+      { r: 200, g: 150, b: 220 },  // 亮紫罗兰
+      { r: 150, g: 205, b: 225 }   // 亮海蓝
     ];
     
     // 当前颜色索引
     let currentIndex = 0;
     let nextIndex = 1;
     let progress = 0;
-    const transitionSpeed = 0.003; // 颜色变化速度
+    const transitionSpeed = 0.0015; // 更柔和的变化速度
     
     function updateGradient() {
       progress += transitionSpeed;
@@ -34,34 +34,51 @@
       const currentColor = colors[currentIndex];
       const nextColor = colors[nextIndex];
       
-      // 计算两个颜色之间的过渡
-      const r = Math.floor(currentColor.r + (nextColor.r - currentColor.r) * progress);
-      const g = Math.floor(currentColor.g + (nextColor.g - currentColor.g) * progress);
-      const b = Math.floor(currentColor.b + (nextColor.b - currentColor.b) * progress);
+      // 使用贝塞尔曲线缓动函数，使变化更加精细
+      const easeInOutQuint = t => t < 0.5 ? 16 * t * t * t * t * t : 1 + 16 * (--t) * t * t * t * t;
+      const easedProgress = easeInOutQuint(progress);
       
-      const color1 = `rgb(${r}, ${g}, ${b})`;
-      const color2 = `rgb(${r+20}, ${g+20}, ${b+20})`;
+      const r = Math.floor(currentColor.r + (nextColor.r - currentColor.r) * easedProgress);
+      const g = Math.floor(currentColor.g + (nextColor.g - currentColor.g) * easedProgress);
+      const b = Math.floor(currentColor.b + (nextColor.b - currentColor.b) * easedProgress);
       
-      // 根据暗模式调整背景颜色
+      // 创建多层次渐变，增强层次感
+      const baseColor = `rgb(${r}, ${g}, ${b})`;
+      const lighterColor = `rgb(${Math.min(r+40, 255)}, ${Math.min(g+40, 255)}, ${Math.min(b+40, 255)})`;
+      const darkerColor = `rgb(${Math.max(r-40, 0)}, ${Math.max(g-40, 0)}, ${Math.max(b-40, 0)})`;
+      const accentColor = `rgb(${Math.min(r+20, 255)}, ${Math.min(g+10, 255)}, ${Math.min(b+30, 255)})`;
+      
+      // 根据暗模式调整背景颜色和不透明度
       const isDarkMode = document.documentElement.classList.contains('dark');
-      const opacity = isDarkMode ? '0.2' : '0.15';
+      const opacity = isDarkMode ? '0.22' : '0.18';
       
-      // 应用渐变
-      gradientBackground.style.background = `linear-gradient(45deg, ${color1}, ${color2})`;
+      // 应用复杂的多层次渐变，创造深度和层次感
+      gradientBackground.style.background = `
+        radial-gradient(circle at 30% 30%, ${lighterColor} 0%, transparent 50%),
+        linear-gradient(120deg, ${darkerColor} 0%, ${baseColor} 35%, ${accentColor} 65%, ${lighterColor} 100%)
+      `;
       gradientBackground.style.opacity = opacity;
       
       requestAnimationFrame(updateGradient);
     }
     
+    // 添加高级纹理效果
+    function addTexture() {
+      gradientBackground.style.backgroundBlendMode = "soft-light, normal";
+      gradientBackground.style.boxShadow = "inset 0 0 100px rgba(255,255,255,0.2)";
+      gradientBackground.style.filter = "contrast(1.05)";
+    }
+    
     // 开始动画
     requestAnimationFrame(updateGradient);
+    addTexture();
     
     // 监听主题变化以调整背景透明度
     const observer = new MutationObserver(function(mutations) {
       mutations.forEach(function(mutation) {
         if (mutation.attributeName === 'class') {
           const isDarkMode = document.documentElement.classList.contains('dark');
-          gradientBackground.style.opacity = isDarkMode ? '0.2' : '0.15';
+          gradientBackground.style.opacity = isDarkMode ? '0.22' : '0.18';
         }
       });
     });

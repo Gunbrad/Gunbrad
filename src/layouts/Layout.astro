@@ -6,6 +6,7 @@ import "@fontsource/roboto/700.css";
 import { profileConfig, siteConfig } from "@/config";
 import ConfigCarrier from "@components/ConfigCarrier.astro";
 import GradientBackground from "@components/misc/GradientBackground.astro";
+import GradientPageBackground from "@components/misc/GradientPageBackground.astro";
 import {
 	AUTO_MODE,
 	BANNER_HEIGHT,
@@ -74,7 +75,7 @@ const bannerOffset =
 ---
 
 <!DOCTYPE html>
-<html lang={siteLang} class="bg-[var(--page-bg)] transition text-[14px] md:text-[16px]"
+<html lang={siteLang} class="transition text-[14px] md:text-[16px]"
 	  data-overlayscrollbars-initialize
 >
 	<head>
@@ -153,6 +154,7 @@ const bannerOffset =
 		  data-overlayscrollbars-initialize
 	>
 		<GradientBackground />
+		<GradientPageBackground />
 		<ConfigCarrier></ConfigCarrier>
 		<slot />
 

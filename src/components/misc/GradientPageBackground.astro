@@ -1,0 +1,276 @@
+<style is:global>
+  /* 覆盖html和body的背景色，使用渐变效果 */
+  html {
+    background: none !important; /* 覆盖原有背景 */
+    transition: background 3s ease;
+  }
+  
+  /* 动态背景渐变基础样式 */
+  #dynamic-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: -2;
+    background-size: 400% 400%;
+    transition: opacity 0.5s ease;
+  }
+  
+  /* 亮色模式下的动态渐变背景 - 降低亮度 */
+  html:not(.dark) #dynamic-bg {
+    background: linear-gradient(
+      -45deg, 
+      oklch(0.94 0.04 calc(var(--hue) - 20)),
+      oklch(0.92 0.05 var(--hue)),
+      oklch(0.93 0.06 calc(var(--hue) + 40)),
+      oklch(0.91 0.04 calc(var(--hue) + 70))
+    );
+    animation: gradientBackground 18s ease infinite;
+    opacity: 0.9;
+  }
+  
+  /* 暗色模式下的动态渐变背景 - 调整暗度 */
+  html.dark #dynamic-bg {
+    background: linear-gradient(
+      -45deg, 
+      oklch(0.13 0.04 calc(var(--hue) - 20)),
+      oklch(0.15 0.06 var(--hue)),
+      oklch(0.14 0.05 calc(var(--hue) + 40)),
+      oklch(0.12 0.04 calc(var(--hue) + 70))
+    );
+    animation: gradientBackground 18s ease infinite;
+    opacity: 0.92;
+  }
+  
+  @keyframes gradientBackground {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+  
+  /* 轻质纹理 */
+  body {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400' viewBox='0 0 800 800'%3E%3Cg fill='none' stroke='%23FFFFFF' stroke-opacity='0.05'%3E%3Ccircle cx='400' cy='400' r='250'/%3E%3Ccircle cx='400' cy='400' r='125'/%3E%3Ccircle cx='400' cy='400' r='375'/%3E%3C/g%3E%3C/svg%3E");
+    background-blend-mode: soft-light;
+    background-attachment: fixed;
+    z-index: -1;
+    position: relative;
+  }
+  
+  html.dark body {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400' viewBox='0 0 800 800'%3E%3Cg fill='none' stroke='%23FFFFFF' stroke-opacity='0.07'%3E%3Ccircle cx='400' cy='400' r='250'/%3E%3Ccircle cx='400' cy='400' r='125'/%3E%3Ccircle cx='400' cy='400' r='375'/%3E%3C/g%3E%3C/svg%3E");
+    background-blend-mode: soft-light;
+  }
+  
+  /* 增强冒泡效果 */
+  #bubbles-container {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: -1;
+    pointer-events: none;
+  }
+  
+  .bubble {
+    position: absolute;
+    bottom: -100px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    opacity: 0;
+    background: radial-gradient(circle at 70% 70%, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0) 70%);
+    animation: rise var(--rise-duration, 12s) ease-in infinite;
+    box-shadow: 0 0 20px 0 rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(4px);
+  }
+  
+  html.dark .bubble {
+    background: radial-gradient(circle at 70% 70%, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0) 70%);
+    box-shadow: 0 0 15px 0 rgba(255, 255, 255, 0.3);
+  }
+  
+  /* 创建一些大型泡泡 */
+  .bubble.large {
+    width: 80px;
+    height: 80px;
+    box-shadow: 0 0 30px 0 rgba(255, 255, 255, 0.8);
+  }
+  
+  /* 创建彩色泡泡 */
+  .bubble.color-1 {
+    background: radial-gradient(circle at 70% 70%, 
+      hsla(calc(var(--hue) * 1deg), 70%, 75%, 0.9) 0%, 
+      hsla(calc(var(--hue) * 1deg), 70%, 75%, 0) 70%
+    );
+  }
+  
+  .bubble.color-2 {
+    background: radial-gradient(circle at 70% 70%, 
+      hsla(calc((var(--hue) + 30) * 1deg), 70%, 75%, 0.9) 0%, 
+      hsla(calc((var(--hue) + 30) * 1deg), 70%, 75%, 0) 70%
+    );
+  }
+  
+  .bubble.color-3 {
+    background: radial-gradient(circle at 70% 70%, 
+      hsla(calc((var(--hue) + 60) * 1deg), 70%, 75%, 0.9) 0%, 
+      hsla(calc((var(--hue) + 60) * 1deg), 70%, 75%, 0) 70%
+    );
+  }
+  
+  @keyframes rise {
+    0% {
+      bottom: -100px;
+      transform: translateX(0) scale(0.3);
+      opacity: 0;
+    }
+    10% {
+      opacity: 0.85;
+    }
+    100% {
+      bottom: 120%;
+      transform: translateX(var(--translate-x, 100px)) scale(1.2);
+      opacity: 0;
+    }
+  }
+  
+  /* 卡片和其他元素的背景色调整，增加磨砂玻璃效果和质感 */
+  .card-base {
+    backdrop-filter: blur(16px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+    transition: all 0.3s ease;
+  }
+  
+  /* 暗色模式下卡片的磨砂玻璃效果 */
+  html.dark .card-base {
+    background-color: rgba(25, 25, 35, 0.75) !important;
+    backdrop-filter: blur(16px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+  }
+  
+  /* 亮色模式下卡片的磨砂玻璃效果 */
+  html:not(.dark) .card-base {
+    background-color: rgba(255, 255, 255, 0.85) !important;
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }
+</style>
+
+<!-- 动态背景容器 -->
+<div id="dynamic-bg"></div>
+
+<!-- 冒泡元素容器 -->
+<div id="bubbles-container"></div>
+
+<script>
+  // 创建增强版冒泡效果
+  document.addEventListener('DOMContentLoaded', () => {
+    const bubblesContainer = document.getElementById('bubbles-container');
+    const isDarkMode = document.documentElement.classList.contains('dark');
+    
+    // 创建初始气泡
+    createBubbles(20);
+    
+    // 每隔一段时间检查并补充气泡
+    setInterval(() => {
+      const currentBubbles = document.querySelectorAll('.bubble');
+      if (currentBubbles.length < 20) {
+        createBubbles(8);
+      }
+    }, 2000);
+    
+    function createBubbles(count) {
+      for (let i = 0; i < count; i++) {
+        setTimeout(() => {
+          const bubble = document.createElement('div');
+          bubble.className = 'bubble';
+          
+          // 随机尺寸类型
+          const sizeClass = Math.random() > 0.75 ? 'large' : '';
+          if (sizeClass) {
+            bubble.classList.add(sizeClass);
+          }
+          
+          // 随机颜色类型
+          const colorRand = Math.random();
+          if (colorRand > 0.6) {
+            const colorClass = `color-${Math.floor(Math.random() * 3) + 1}`;
+            bubble.classList.add(colorClass);
+          }
+          
+          // 随机尺寸变化
+          let size;
+          if (sizeClass === 'large') {
+            size = Math.random() * 60 + 60;
+          } else {
+            size = Math.random() * 40 + 20;
+          }
+          bubble.style.width = `${size}px`;
+          bubble.style.height = `${size}px`;
+          
+          // 随机起始位置
+          const startPos = Math.random() * 100;
+          bubble.style.left = `${startPos}%`;
+          
+          // 随机上升时间
+          const riseDuration = Math.random() * 15 + 10;
+          bubble.style.setProperty('--rise-duration', `${riseDuration}s`);
+          
+          // 横向漂移
+          const translateX = (Math.random() - 0.5) * 300;
+          bubble.style.setProperty('--translate-x', `${translateX}px`);
+          
+          // 随机延迟
+          const delay = Math.random() * 8;
+          bubble.style.animationDelay = `${delay}s`;
+          
+          // 深色模式下调整不透明度
+          if (isDarkMode) {
+            bubble.style.opacity = '0.4';
+          } else {
+            bubble.style.opacity = '0.85';
+          }
+          
+          // 添加到容器
+          bubblesContainer.appendChild(bubble);
+          
+          // 动画结束后移除
+          setTimeout(() => {
+            bubble.remove();
+          }, (riseDuration + delay) * 1000);
+        }, i * 300);
+      }
+    }
+    
+    // 监听模式切换
+    const observer = new MutationObserver(function(mutations) {
+      mutations.forEach(function(mutation) {
+        if (mutation.attributeName === 'class') {
+          const isDark = document.documentElement.classList.contains('dark');
+          const bubbles = document.querySelectorAll('.bubble');
+          bubbles.forEach(bubble => {
+            if (isDark) {
+              bubble.style.opacity = '0.4';
+            } else {
+              bubble.style.opacity = '0.85';
+            }
+          });
+        }
+      });
+    });
+    
+    observer.observe(document.documentElement, { attributes: true });
+  });
+</script> 
