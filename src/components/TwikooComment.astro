@@ -19,6 +19,125 @@ const twikooEnvId = commentConfig.twikoo.envId;
     .tk-input[name="link"] + label {
         display: none !important;
     }
+    
+    /* 暗色模式下的评论区样式 */
+    html.dark .tk-comments-container {
+        color: rgba(255, 255, 255, 0.9);
+    }
+    
+    /* 评论文本颜色 */
+    html.dark .tk-content {
+        color: rgba(255, 255, 255, 0.85) !important;
+    }
+    
+    /* 评论者名称颜色 */
+    html.dark .tk-nick {
+        color: rgba(255, 255, 255, 0.95) !important;
+        font-weight: 600;
+    }
+    
+    /* 评论时间和其他元数据 */
+    html.dark .tk-time,
+    html.dark .tk-meta {
+        color: rgba(255, 255, 255, 0.6) !important;
+    }
+    
+    /* 评论输入框文字颜色 */
+    html.dark .tk-input,
+    html.dark .tk-textarea {
+        color: rgba(255, 255, 255, 0.9) !important;
+    }
+    
+    /* 评论输入框标签颜色 */
+    html.dark .tk-input-label {
+        color: rgba(255, 255, 255, 0.7) !important;
+    }
+    
+    /* 回复和引用文本 */
+    html.dark .tk-quote {
+        color: rgba(255, 255, 255, 0.75) !important;
+        border-left-color: rgba(255, 255, 255, 0.2) !important;
+    }
+    
+    /* 按钮文字颜色 */
+    html.dark .tk-action-icon,
+    html.dark .tk-submit {
+        color: rgba(255, 255, 255, 0.85) !important;
+    }
+    
+    /* 分页按钮和文本 */
+    html.dark .tk-pagination button,
+    html.dark .tk-pagination {
+        color: rgba(255, 255, 255, 0.8) !important;
+    }
+    
+    /* 评论计数和标题 */
+    html.dark .tk-comments-title,
+    html.dark .tk-comments-count {
+        color: rgba(255, 255, 255, 0.9) !important;
+    }
+    
+    /* 提示文本 */
+    html.dark .tk-text,
+    html.dark .tk-preview {
+        color: rgba(255, 255, 255, 0.85) !important;
+    }
+    
+    /* 错误信息 */
+    html.dark .tk-error {
+        color: #ff6b6b !important;
+    }
+    
+    /* 表情选择器相关文本 */
+    html.dark .tk-emoji-popup,
+    html.dark .tk-emoji-tabs {
+        color: rgba(255, 255, 255, 0.8) !important;
+    }
+    
+    /* 占位符文本颜色 */
+    html.dark .tk-input::placeholder,
+    html.dark .tk-textarea::placeholder {
+        color: rgba(255, 255, 255, 0.5) !important;
+    }
+    
+    /* 评论区加载提示文本 */
+    html.dark .tk-loading {
+        color: rgba(255, 255, 255, 0.7) !important;
+    }
+    
+    /* 回复按钮和操作按钮 */
+    html.dark .tk-action-link {
+        color: rgba(255, 255, 255, 0.8) !important;
+    }
+    
+    /* Markdown 内容样式 */
+    html.dark .tk-content a {
+        color: #6ba4ff !important;
+    }
+    
+    html.dark .tk-content code {
+        color: #f8f8f2 !important;
+        background-color: rgba(40, 42, 54, 0.8) !important;
+    }
+    
+    html.dark .tk-content pre {
+        background-color: rgba(40, 42, 54, 0.8) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    }
+    
+    html.dark .tk-content blockquote {
+        color: rgba(255, 255, 255, 0.7) !important;
+        border-left-color: rgba(255, 255, 255, 0.3) !important;
+    }
+    
+    html.dark .tk-content table {
+        border-color: rgba(255, 255, 255, 0.2) !important;
+    }
+    
+    html.dark .tk-content th,
+    html.dark .tk-content td {
+        border-color: rgba(255, 255, 255, 0.2) !important;
+    }
 </style>
 
 <!-- 加载最新版本的 Twikoo -->
