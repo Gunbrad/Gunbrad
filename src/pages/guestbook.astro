@@ -11,7 +11,7 @@ const pageDescription = "欢迎来到留言墙，在这里你可以与博主交�
 <MainGridLayout title={pageTitle} description={pageDescription}>
   <div class="flex flex-col space-y-8 relative w-full mb-8 onload-animation">
     <!-- 留言墙 -->
-    <div class="card-base px-6 md:px-9 py-6 pb-16 rounded-[var(--radius-large)] relative backdrop-blur-md">
+    <div class="card-glass px-6 md:px-9 py-6 pb-16 rounded-[var(--radius-large)] relative">
       <GuestbookWall />
       
       <!-- 弹出表单按钮 - 固定在留言墙底部中央 -->
@@ -52,6 +52,25 @@ const pageDescription = "欢迎来到留言墙，在这里你可以与博主交�
 </MainGridLayout>
 
 <style is:global>
+  /* 定义卡片玻璃效果 */
+  .card-glass {
+    background-color: transparent;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  }
+  
+  html.dark .card-glass {
+    background-color: rgba(25, 25, 35, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+  }
+  
+  html:not(.dark) .card-glass {
+    background-color: rgba(255, 255, 255, 0.45);
+  }
+  
   /* 留言卡片样式修复 - 确保背景色和模糊效果正常工作 */
   .guestbook-message.card-base {
     /* 确保自定义背景色优先级高于全局card-base样式 */
@@ -59,7 +78,9 @@ const pageDescription = "欢迎来到留言墙，在这里你可以与博主交�
     backdrop-filter: blur(12px) !important;
     /* 添加边框和阴影增强立体感 */
     border: 1px solid rgba(255, 255, 255, 0.2) !important;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
+    position: relative;
+    overflow: hidden;
   }
   
   /* 覆盖card-base类的背景设置，使自定义背景色生效 */
@@ -101,7 +122,7 @@ const pageDescription = "欢迎来到留言墙，在这里你可以与博主交�
     }
   });
   
-  // 修复留言样式
+  // 修复留言样式 - 确保透明度正确应用
   document.addEventListener('DOMContentLoaded', function() {
     // 监听留言加载
     const observer = new MutationObserver(function(mutations) {
@@ -111,8 +132,10 @@ const pageDescription = "欢迎来到留言墙，在这里你可以与博主交�
           messages.forEach(function(message) {
             const bgColor = message.style.backgroundColor;
             if (bgColor) {
-              const rgba = convertToRGBA(bgColor, 0.85);
+              // 转换颜色到RGBA格式
+              let rgba = convertToRGBA(bgColor, 0.85);
               message.style.backgroundColor = rgba;
+              message.style.setProperty('--custom-bg-color', rgba);
             }
           });
         }
@@ -173,5 +196,5 @@ const pageDescription = "欢迎来到留言墙，在这里你可以与博主交�
     }
   });
 
-  console.log('留言墙页面脚本已加载，版本：', new Date().toISOString());
+  console.log('留言墙页面脚本已加载，原始颜色版本：', new Date().toISOString());
 </script> 

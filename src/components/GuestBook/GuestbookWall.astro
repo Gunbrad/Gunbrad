@@ -11,7 +11,7 @@ function formatDate(dateString) {
 }
 ---
 
-<div class="guestbook-wall backdrop-blur-sm rounded-xl shadow-sm">
+<div class="guestbook-wall rounded-xl shadow-sm">
   <div class="relative pt-6">
     <h1 class="text-3xl font-bold mb-8 text-center">留言墙</h1>
     
@@ -26,6 +26,12 @@ function formatDate(dateString) {
 </div>
 
 <style>
+  .guestbook-wall {
+    background-color: transparent;
+    position: relative;
+    overflow: hidden;
+  }
+  
   .messages-container {
     display: flex;
     flex-direction: column; /* 改为纵向布局 */
@@ -72,9 +78,9 @@ function formatDate(dateString) {
   }
   
   .guestbook-message:hover {
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
     border-left: 3px solid #3b82f6;
-    transform: translateX(5px) translateY(-2px);
+    transform: translateX(5px) translateY(-5px);
   }
   
   /* 添加悬停时的高光效果 */
@@ -85,7 +91,7 @@ function formatDate(dateString) {
     left: 0;
     right: 0;
     height: 40%;
-    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.1), transparent);
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.15), transparent);
     opacity: 0;
     transition: opacity 0.3s ease;
     pointer-events: none;
@@ -94,6 +100,20 @@ function formatDate(dateString) {
   
   .guestbook-message:hover::after {
     opacity: 1;
+  }
+  
+  /* 添加底部阴影效果增强立体感 */
+  .guestbook-message::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 30%;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.05), transparent);
+    border-radius: 0 0 1rem 1rem;
+    opacity: 0.7;
+    pointer-events: none;
   }
   
   .message-content {
@@ -457,7 +477,7 @@ function formatDate(dateString) {
         messageElement.style.borderStyle = message.border_style || 'solid';
         
         // 增强卡片效果
-        messageElement.style.boxShadow = '0 8px 32px rgba(0, 0, 0, 0.12)';
+        messageElement.style.boxShadow = '0 10px 25px rgba(0, 0, 0, 0.12)';
         messageElement.style.backdropFilter = 'blur(12px)';
         messageElement.style.WebkitBackdropFilter = 'blur(12px)'; // 兼容 Safari
         

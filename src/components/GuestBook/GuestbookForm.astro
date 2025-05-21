@@ -182,19 +182,19 @@ const emojiCategories = [
           }
           
           return (
-            <button 
-              type="button"
-              class="style-preset p-1.5 rounded-lg border text-center text-xs transition-all transform hover:-translate-y-1"
-              data-index={index}
+          <button 
+            type="button"
+            class="style-preset p-1.5 rounded-lg border text-center text-xs transition-all transform hover:-translate-y-1"
+            data-index={index}
               data-background={bgColor}
-              data-textcolor={style.textColor}
-              data-borderstyle={style.borderStyle}
-              data-boxshadow={style.boxShadow}
+            data-textcolor={style.textColor}
+            data-borderstyle={style.borderStyle}
+            data-boxshadow={style.boxShadow}
               style={`background-color: ${bgColor}; color: ${style.textColor}; border-style: ${style.borderStyle}; box-shadow: ${style.boxShadow}; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);`}
-              onClick={`setStylePreset(${index})`}
-            >
-              {style.name}
-            </button>
+            onClick={`setStylePreset(${index})`}
+          >
+            {style.name}
+          </button>
           )
         })}
       </div>
