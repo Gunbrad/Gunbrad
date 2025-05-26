@@ -20,6 +20,10 @@
 
 - stevenlu的博客：[stevenlu的博客](https://stevenlu.top)
 
+- 魔兽地图翻译/制作者肥羊的博客：[肥羊的博客](https://darksheep.vip/)
+
 - 梯子宇宙——选择你的英雄：[梯子](https://guatizi.com/)
 
 - 渐变色参考：[渐变色参考](https://webgradients.com)
+
+- 
