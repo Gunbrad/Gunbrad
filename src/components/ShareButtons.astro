@@ -192,12 +192,10 @@ if (!url.startsWith('http')) {
 </style>
 
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
-    const wechatBtn = document.getElementById('wechat-share-btn');
-    const qqBtn = document.getElementById('qq-share-btn');
-    
+  // 分享功能的工具函数
+  window.ShareUtils = window.ShareUtils || {
     // 显示按钮成功状态
-    function showButtonSuccess(button, originalText, successText) {
+    showButtonSuccess: function(button, originalText, successText) {
       if (!button) return;
       
       const textSpan = button.querySelector('span');
@@ -213,10 +211,10 @@ if (!url.startsWith('http')) {
           textSpan.textContent = originalText;
         }, 2000);
       }
-    }
+    },
     
     // 解码URL中的中文字符，让链接更美观
-    function decodeUrlPath(url) {
+    decodeUrlPath: function(url) {
       try {
         console.log('Original URL:', url);
         
@@ -242,19 +240,15 @@ if (!url.startsWith('http')) {
         console.log('URL decode failed:', error);
         return url;
       }
-    }
+    },
     
-    // 创建友好的分享文本
-    function createShareText(title, url) {
-      const friendlyUrl = decodeUrlPath(url);
-      if (title && title.trim()) {
-        return `${title}\n${friendlyUrl}`;
-      }
-      return friendlyUrl;
-    }
+    // 创建友好的分享文本 - 只返回解码后的URL
+    createShareText: function(title, url) {
+      return this.decodeUrlPath(url);
+    },
     
     // 复制文本到剪贴板
-    async function copyToClipboard(text) {
+    copyToClipboard: async function(text) {
       try {
         if (navigator.clipboard && window.isSecureContext) {
           await navigator.clipboard.writeText(text);
@@ -279,6 +273,28 @@ if (!url.startsWith('http')) {
         return false;
       }
     }
+  };
+  
+  // 初始化分享按钮功能
+  function initShareButtons() {
+    console.log('Initializing share buttons...');
+    
+    // 移除之前的事件监听器（如果有的话）
+    const existingWechatBtn = document.getElementById('wechat-share-btn');
+    const existingQqBtn = document.getElementById('qq-share-btn');
+    
+    if (existingWechatBtn) {
+      existingWechatBtn.replaceWith(existingWechatBtn.cloneNode(true));
+    }
+    if (existingQqBtn) {
+      existingQqBtn.replaceWith(existingQqBtn.cloneNode(true));
+    }
+    
+    // 重新获取按钮元素
+    const wechatBtn = document.getElementById('wechat-share-btn');
+    const qqBtn = document.getElementById('qq-share-btn');
+    
+    console.log('Share buttons found:', { wechatBtn: !!wechatBtn, qqBtn: !!qqBtn });
     
     // 微信分享按钮点击事件
     if (wechatBtn) {
@@ -287,10 +303,10 @@ if (!url.startsWith('http')) {
         const title = this.getAttribute('data-title');
         
         if (url) {
-          const shareText = createShareText(title, url);
-          const success = await copyToClipboard(shareText);
+          const shareText = window.ShareUtils.createShareText(title, url);
+          const success = await window.ShareUtils.copyToClipboard(shareText);
           if (success) {
-            showButtonSuccess(this, '微信分享', '✓ 已复制！去微信粘贴吧');
+            window.ShareUtils.showButtonSuccess(this, '微信分享', '✓ 已复制！去微信粘贴吧');
           } else {
             alert('复制失败，请手动复制内容：\n' + shareText);
           }
@@ -305,10 +321,10 @@ if (!url.startsWith('http')) {
         const title = this.getAttribute('data-title');
         
         if (url) {
-          const shareText = createShareText(title, url);
-          const success = await copyToClipboard(shareText);
+          const shareText = window.ShareUtils.createShareText(title, url);
+          const success = await window.ShareUtils.copyToClipboard(shareText);
           if (success) {
-            showButtonSuccess(this, 'QQ分享', '✓ 已复制！去QQ粘贴吧');
+            window.ShareUtils.showButtonSuccess(this, 'QQ分享', '✓ 已复制！去QQ粘贴吧');
           } else {
             alert('复制失败，请手动复制内容：\n' + shareText);
           }
@@ -317,7 +333,7 @@ if (!url.startsWith('http')) {
     }
     
     // 键盘快捷键支持 (Ctrl+Shift+W 微信分享, Ctrl+Shift+Q QQ分享)
-    document.addEventListener('keydown', function(event) {
+    const keydownHandler = function(event) {
       if (event.ctrlKey && event.shiftKey) {
         if (event.key === 'W' && wechatBtn) {
           event.preventDefault();
@@ -327,6 +343,56 @@ if (!url.startsWith('http')) {
           qqBtn.click();
         }
       }
-    });
-  });
+    };
+    
+    // 移除之前的键盘事件监听器
+    document.removeEventListener('keydown', window.shareKeydownHandler);
+    // 添加新的键盘事件监听器
+    window.shareKeydownHandler = keydownHandler;
+    document.addEventListener('keydown', keydownHandler);
+  }
+  
+  // 页面加载完成时初始化
+  document.addEventListener('DOMContentLoaded', initShareButtons);
+  
+  // 暴露初始化函数到全局，以便其他脚本调用
+  window.initShareButtons = initShareButtons;
+  
+  // 定期检查并重新初始化（处理动态加载的内容）
+  let checkInterval;
+  function startShareButtonsWatcher() {
+    clearInterval(checkInterval);
+    checkInterval = setInterval(() => {
+      const wechatBtn = document.getElementById('wechat-share-btn');
+      const qqBtn = document.getElementById('qq-share-btn');
+      
+      // 如果找到按钮但没有绑定事件，重新初始化
+      if ((wechatBtn || qqBtn) && !wechatBtn?._shareInitialized) {
+        console.log('Re-initializing share buttons due to DOM changes');
+        initShareButtons();
+        // 标记已初始化
+        if (wechatBtn) wechatBtn._shareInitialized = true;
+        if (qqBtn) qqBtn._shareInitialized = true;
+      }
+    }, 1000);
+  }
+  
+  // 启动监视器
+  startShareButtonsWatcher();
+  
+  // 监听可能的页面变化事件
+  if (typeof window.swup !== 'undefined') {
+    // 如果使用了 Swup
+    window.swup.on('contentReplaced', initShareButtons);
+  }
+  
+  // 监听 history 变化
+  let lastUrl = location.href;
+  new MutationObserver(() => {
+    const url = location.href;
+    if (url !== lastUrl) {
+      lastUrl = url;
+      setTimeout(initShareButtons, 100); // 稍微延迟确保内容加载完成
+    }
+  }).observe(document, { subtree: true, childList: true });
 </script> 
