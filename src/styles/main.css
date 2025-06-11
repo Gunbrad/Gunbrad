@@ -1,5 +1,73 @@
 @tailwind components;
 
+/* 全局强制加粗样式 - 在components层之前定义，确保优先级 */
+strong, b, .font-bold {
+    font-weight: 700 !important;
+    font-synthesis: weight !important;
+    -webkit-font-smoothing: antialiased !important;
+    -moz-osx-font-smoothing: grayscale !important;
+}
+
+/* 针对文章内容的特殊处理 */
+.custom-md strong, 
+.markdown-content strong,
+.prose strong,
+article strong,
+[data-pagefind-body] strong {
+    font-weight: 700 !important;
+    font-style: inherit !important;
+}
+
+/* 移动端额外强化 */
+@media (max-width: 768px) {
+    html strong, 
+    html body strong, 
+    html body * strong,
+    html b, 
+    html body b, 
+    html body * b,
+    html .font-bold,
+    html body .font-bold,
+    html body * .font-bold {
+        font-weight: 700 !important;
+        font-family: inherit !important;
+        font-style: inherit !important;
+        text-rendering: optimizeLegibility !important;
+    }
+    
+    html .custom-md strong, 
+    html .markdown-content strong,
+    html .prose strong,
+    html article strong,
+    html [data-pagefind-body] strong,
+    html body .custom-md strong, 
+    html body .markdown-content strong,
+    html body .prose strong,
+    html body article strong,
+    html body [data-pagefind-body] strong {
+        font-weight: 700 !important;
+        font-family: inherit !important;
+        font-style: inherit !important;
+    }
+    
+    /* 覆盖可能的normalize.css或reset.css */
+    html * strong, 
+    html * b,
+    html body * strong, 
+    html body * b {
+        font-weight: 700 !important;
+    }
+    
+    /* 针对特定容器的强化 */
+    #post-container strong,
+    .card-base strong,
+    [class*="content"] strong,
+    [class*="markdown"] strong,
+    [class*="prose"] strong {
+        font-weight: 700 !important;
+    }
+}
+
 @layer components {
     .card-base {
         @apply rounded-[var(--radius-large)] overflow-hidden bg-[var(--card-bg)] transition;
