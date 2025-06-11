@@ -123,11 +123,19 @@ if (!url.startsWith('http')) {
   }
   
   
-  /* 成功状态样式 */
-  .share-btn.success {
+  /* 成功状态样式 - 微信绿色 */
+  .share-btn.success.wechat-btn {
     background-color: #10b981 !important;
     color: white !important;
     border-color: #10b981 !important;
+    transform: scale(0.98);
+  }
+  
+  /* 成功状态样式 - QQ蓝色 */
+  .share-btn.success.qq-btn {
+    background-color: #12b7f5 !important;
+    color: white !important;
+    border-color: #12b7f5 !important;
     transform: scale(0.98);
   }
   
@@ -135,9 +143,14 @@ if (!url.startsWith('http')) {
     color: white !important;
   }
   
-  :global(.dark) .share-btn.success {
+  :global(.dark) .share-btn.success.wechat-btn {
     background-color: #059669 !important;
     border-color: #059669 !important;
+  }
+  
+  :global(.dark) .share-btn.success.qq-btn {
+    background-color: #0ea5e9 !important;
+    border-color: #0ea5e9 !important;
   }
   
   /* 响应式设计 */
@@ -200,15 +213,21 @@ if (!url.startsWith('http')) {
       
       const textSpan = button.querySelector('span');
       if (textSpan) {
+        // 清除之前的恢复定时器
+        if (button._restoreTimer) {
+          clearTimeout(button._restoreTimer);
+        }
+        
         // 添加成功样式
         button.classList.add('success');
         // 更改文本
         textSpan.textContent = successText;
         
         // 2秒后恢复原状
-        setTimeout(() => {
+        button._restoreTimer = setTimeout(() => {
           button.classList.remove('success');
           textSpan.textContent = originalText;
+          button._restoreTimer = null;
         }, 2000);
       }
     },
@@ -279,22 +298,17 @@ if (!url.startsWith('http')) {
   function initShareButtons() {
     console.log('Initializing share buttons...');
     
-    // 移除之前的事件监听器（如果有的话）
-    const existingWechatBtn = document.getElementById('wechat-share-btn');
-    const existingQqBtn = document.getElementById('qq-share-btn');
-    
-    if (existingWechatBtn) {
-      existingWechatBtn.replaceWith(existingWechatBtn.cloneNode(true));
-    }
-    if (existingQqBtn) {
-      existingQqBtn.replaceWith(existingQqBtn.cloneNode(true));
-    }
-    
-    // 重新获取按钮元素
+    // 获取按钮元素
     const wechatBtn = document.getElementById('wechat-share-btn');
     const qqBtn = document.getElementById('qq-share-btn');
     
     console.log('Share buttons found:', { wechatBtn: !!wechatBtn, qqBtn: !!qqBtn });
+    
+    // 检查是否已经初始化过，避免重复绑定
+    if (wechatBtn && wechatBtn._shareInitialized) {
+      console.log('Share buttons already initialized, skipping...');
+      return;
+    }
     
     // 微信分享按钮点击事件
     if (wechatBtn) {
@@ -350,6 +364,12 @@ if (!url.startsWith('http')) {
     // 添加新的键盘事件监听器
     window.shareKeydownHandler = keydownHandler;
     document.addEventListener('keydown', keydownHandler);
+    
+    // 标记已初始化
+    if (wechatBtn) wechatBtn._shareInitialized = true;
+    if (qqBtn) qqBtn._shareInitialized = true;
+    
+    console.log('Share buttons initialization completed');
   }
   
   // 页面加载完成时初始化
@@ -370,9 +390,6 @@ if (!url.startsWith('http')) {
       if ((wechatBtn || qqBtn) && !wechatBtn?._shareInitialized) {
         console.log('Re-initializing share buttons due to DOM changes');
         initShareButtons();
-        // 标记已初始化
-        if (wechatBtn) wechatBtn._shareInitialized = true;
-        if (qqBtn) qqBtn._shareInitialized = true;
       }
     }, 1000);
   }
@@ -392,6 +409,12 @@ if (!url.startsWith('http')) {
     const url = location.href;
     if (url !== lastUrl) {
       lastUrl = url;
+      // 清除旧的初始化标记
+      const oldWechatBtn = document.getElementById('wechat-share-btn');
+      const oldQqBtn = document.getElementById('qq-share-btn');
+      if (oldWechatBtn) oldWechatBtn._shareInitialized = false;
+      if (oldQqBtn) oldQqBtn._shareInitialized = false;
+      
       setTimeout(initShareButtons, 100); // 稍微延迟确保内容加载完成
     }
   }).observe(document, { subtree: true, childList: true });
