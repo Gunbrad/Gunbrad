@@ -12,7 +12,7 @@ if (!url.startsWith('http')) {
   fullUrl = 'https://' + (new URL(Astro.url.pathname, Astro.site)).host + url;
 }
 
-// 不再需要构建QQ分享链接，因为都是复制链接的方式
+// 传递原始URL，在客户端JavaScript中进行解码
 ---
 
 <div class:list={["share-buttons", className]}>
@@ -215,6 +215,44 @@ if (!url.startsWith('http')) {
       }
     }
     
+    // 解码URL中的中文字符，让链接更美观
+    function decodeUrlPath(url) {
+      try {
+        console.log('Original URL:', url);
+        
+        // 多次解码，处理可能的多层编码
+        let decodedUrl = url;
+        let previousUrl = '';
+        let attempts = 0;
+        
+        // 最多尝试3次解码，防止无限循环
+        while (decodedUrl !== previousUrl && attempts < 3) {
+          previousUrl = decodedUrl;
+          try {
+            decodedUrl = decodeURIComponent(decodedUrl);
+            attempts++;
+          } catch (e) {
+            break;
+          }
+        }
+        
+        console.log('Decoded URL after', attempts, 'attempts:', decodedUrl);
+        return decodedUrl;
+      } catch (error) {
+        console.log('URL decode failed:', error);
+        return url;
+      }
+    }
+    
+    // 创建友好的分享文本
+    function createShareText(title, url) {
+      const friendlyUrl = decodeUrlPath(url);
+      if (title && title.trim()) {
+        return `${title}\n${friendlyUrl}`;
+      }
+      return friendlyUrl;
+    }
+    
     // 复制文本到剪贴板
     async function copyToClipboard(text) {
       try {
@@ -246,13 +284,15 @@ if (!url.startsWith('http')) {
     if (wechatBtn) {
       wechatBtn.addEventListener('click', async function() {
         const url = this.getAttribute('data-url');
+        const title = this.getAttribute('data-title');
         
         if (url) {
-          const success = await copyToClipboard(url);
+          const shareText = createShareText(title, url);
+          const success = await copyToClipboard(shareText);
           if (success) {
             showButtonSuccess(this, '微信分享', '✓ 已复制！去微信粘贴吧');
           } else {
-            alert('复制失败，请手动复制链接：\n' + url);
+            alert('复制失败，请手动复制内容：\n' + shareText);
           }
         }
       });
@@ -262,13 +302,15 @@ if (!url.startsWith('http')) {
     if (qqBtn) {
       qqBtn.addEventListener('click', async function() {
         const url = this.getAttribute('data-url');
+        const title = this.getAttribute('data-title');
         
         if (url) {
-          const success = await copyToClipboard(url);
+          const shareText = createShareText(title, url);
+          const success = await copyToClipboard(shareText);
           if (success) {
             showButtonSuccess(this, 'QQ分享', '✓ 已复制！去QQ粘贴吧');
           } else {
-            alert('复制失败，请手动复制链接：\n' + url);
+            alert('复制失败，请手动复制内容：\n' + shareText);
           }
         }
       });
