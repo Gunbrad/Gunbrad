@@ -129,6 +129,7 @@ if (!url.startsWith('http')) {
     color: white !important;
     border-color: #10b981 !important;
     transform: scale(0.98);
+    font-weight: 600 !important;
   }
   
   /* 成功状态样式 - QQ蓝色 */
@@ -137,20 +138,31 @@ if (!url.startsWith('http')) {
     color: white !important;
     border-color: #12b7f5 !important;
     transform: scale(0.98);
+    font-weight: 600 !important;
   }
   
   .share-btn.success .share-icon {
     color: white !important;
   }
   
+  .share-btn.success span {
+    font-weight: 600 !important;
+  }
+  
   :global(.dark) .share-btn.success.wechat-btn {
     background-color: #059669 !important;
     border-color: #059669 !important;
+    font-weight: 600 !important;
   }
   
   :global(.dark) .share-btn.success.qq-btn {
     background-color: #0ea5e9 !important;
     border-color: #0ea5e9 !important;
+    font-weight: 600 !important;
+  }
+  
+  :global(.dark) .share-btn.success span {
+    font-weight: 600 !important;
   }
   
   /* 响应式设计 */
@@ -160,6 +172,11 @@ if (!url.startsWith('http')) {
       padding: 1rem;
     }
     
+    .share-title {
+      font-weight: 600 !important;
+      font-size: 1rem !important;
+    }
+    
     .share-btns-container {
       flex-direction: column;
     }
@@ -167,6 +184,12 @@ if (!url.startsWith('http')) {
     .share-btn {
       width: 100%;
       min-width: auto;
+      font-weight: 500 !important;
+      font-size: 0.875rem !important;
+    }
+    
+    .share-btn.success {
+      font-weight: 600 !important;
     }
   }
   
